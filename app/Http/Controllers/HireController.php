@@ -19,9 +19,11 @@ class HireController extends Controller {
 
     public function index() {
         if (request()->ajax()) {
-            $data = Hire::orderBy('id', 'desc')->get();
-            return DataTables::of($data)
-                ->addColumn('action', function ($data) {
+            $i = 0;
+            $hire = Hire::orderBy('id', 'desc')->get();
+            return DataTables::of($hire)
+                ->addIndexColumn()
+                ->addColumn('action', function ($hire) {
                     $button = '<div class="list-icons">
                     <div class="dropdown">
                         <a href="#" class="list-icons-item" data-toggle="dropdown" aria-expanded="false">
@@ -36,8 +38,13 @@ class HireController extends Controller {
                     </div>
                 </div>';
                     return $button;
-                })->setTotalRecords($data->count())
-                ->rawColumns(['action'])
+                })->setTotalRecords($hire->count())
+                ->editColumn('sale_status', function ($hire) {
+                    return $hire->sale_status === 0 ? '<span class="badge badge-secondary">Pending</span>' : '<span class="badge badge-active">Sale</span>';
+                })->editColumn('auction_name', function ($hire) {
+                return 'Auction Name: ' . $hire->auction_name . '<br> Auction Place: ' . $hire->auction_place;
+            })
+                ->rawColumns(['action', 'sale_status', 'auction_name'])
                 ->make(true);
         }
         return view('pages.car.hire.index');

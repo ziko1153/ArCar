@@ -20,15 +20,20 @@
       <!-- DataTable of Product list -->
   <div class="card">
     <div class="card-header header-elements-inline ">
-      <h5 class="card-title font-weight-bold text-uppercase">View All Products</h5>
+      <h5 class="card-title font-weight-bold text-uppercase">Car Hire List</h5>
     </div>
     <div class="card-body border-top-1">
       <table class="table datatable-basic table-hover table-bordered">
         <thead class="bg-dark">
           <tr>
-              <th>Sl.</th>
+            <th>Sl.</th>
+            <th>Reg No.</th>
             <th>Car Name</th>
-            <th>Car Price</th>
+            <th>Price</th>
+            <th>Auction</th>
+            <th>Parking Place</th>
+            <th>Buying Date</th>
+            <th>Sale Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -44,29 +49,7 @@
 
 @section('extra-script')
 <script type="text/javascript" defer>
- var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-console.log(CSRF_TOKEN);
-
-// $.ajax({
-//         url: "{{route('car.showajax')}}",
-//         type:"POST",
-//         data:{
-//           name:'ziko',
-//           email:'hello@',
-//           _token: CSRF_TOKEN
-
-//         },
-//         success:function(response){
-//           console.log(response);
-//           if(response) {
-            
-//           }
-//         },
-//         error:function(err) {
-//             console.log('Error',err);
-            
-//         }
-//        });
+ let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 
     // Setting datatable defaults
     $.extend($.fn.dataTable.defaults, {
@@ -136,13 +119,18 @@ console.log(CSRF_TOKEN);
             "orderable": false
         }],
         columns: [
-
-{data:'id'},
+{ data: 'DT_RowIndex', name: 'DT_RowIndex' },
+{data:'reg_no'},
 {data: 'car_name'},
 {data: 'car_price'},
+{data: 'auction_name'},
+{data: 'parking_place'},
+{data: 'buying_date'},
+{data: 'sale_status'},
 {data: 'action'}
 
-  ],
+  ], 
+
         buttons: {
             dom: {
                 button: {
@@ -161,7 +149,7 @@ console.log(CSRF_TOKEN);
                 {
                     extend: 'csv',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
 
                 },
@@ -169,7 +157,7 @@ console.log(CSRF_TOKEN);
                 {
                     extend: 'excel',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 },
 
@@ -178,7 +166,7 @@ console.log(CSRF_TOKEN);
 
                     title: 'Company name will Be Here',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
 
                     }
 
@@ -189,7 +177,7 @@ console.log(CSRF_TOKEN);
                     footer: true,
                     title: 'Company name will Be Here',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
                         stripHtml: false
                     }
 
