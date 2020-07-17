@@ -23,7 +23,7 @@
       <h5 class="card-title font-weight-bold text-uppercase">Car Hire List</h5>
     </div>
     <div class="card-body border-top-1">
-      <table class="table datatable-basic table-hover table-bordered">
+      <table class="table datatable-basic table-hover table-bordered" style="font-size:1rem">
         <thead class="bg-dark">
           <tr>
             <th>Sl.</th>
@@ -84,7 +84,7 @@
         }
     });
     var getProductList = $('.datatable-basic').DataTable({
-        'processing': true,
+        processing: true,
         'serverSide': true,
         'ordering': true,
         'order': [],
@@ -175,7 +175,7 @@
                 {
                     extend: 'print',
                     footer: true,
-                    title: 'Company name will Be Here',
+                    title: '{!!config('app.name')!!}',
                     exportOptions: {
                         columns: [0, 1, 2, 3, 4, 5, 6, 7],
                         stripHtml: false
