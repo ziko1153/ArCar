@@ -55,10 +55,44 @@ class HireController extends Controller {
 
     public function edit(Hire $id) {
 
-        return view('pages.car.edit', ['hire' => $id]);
+        if (request()->ajax()) {
+            return response()->json(['response' => 'success', 'data' => $id]);
+        }
+
     }
 
     public function update() {
+        error_log($request->all());
+        $rules = array(
+            'car_name' => 'required',
+            'car_price' => 'required|numeric',
+            'reg_no' => 'required',
+            'auction_name' => 'required',
+            'buying_date' => 'required|date_format:Y-m-d',
+            'auction_place' => '',
+            'parking_place' => '',
+        );
+
+        $error = Validator::make($request->all(), $rules);
+
+        if ($error->fails()) {
+            return response()->json(['errors' => $error->errors()->all()]);
+        }
+
+        $form_data = array(
+            'car_name' => $request->first_name,
+            'car_price' => $request->car_price,
+            'reg_no' => $request->reg_no,
+            'auction_name' => $request->auction_name,
+            'buying_date' => $request->buying_date,
+            'auction_place' => $request->auction_place,
+            'parking_place' => $request->parking_place,
+            'user_id' => request()->user()->id,
+        );
+
+        Hire::whereId($request->hidden_id)->update($form_data);
+
+        return response()->json(['success' => 'Data is successfully updated']);
 
     }
 
@@ -73,9 +107,8 @@ class HireController extends Controller {
                 </a>
 
                 <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">
-                    <a href="#" class="dropdown-item"><i class="icon-file-pdf"></i> Export to .pdf</a>
-                    <a href="#" class="dropdown-item"><i class="icon-file-excel"></i> Export to .csv</a>
-                    <a href="#" class="dropdown-item"><i class="icon-file-word"></i> Export to .doc</a>
+                    <a href="#" class="dropdown-item edit" id="' . $hire->id . '"><i class="icon-pencil"></i>Edit</a>
+                    <a href="#" class="dropdown-item delete" id="' . $hire->id . '"><i class="icon-trash"></i>Delete</a>
                 </div>
             </div>
         </div>';
@@ -94,7 +127,7 @@ class HireController extends Controller {
             })
 
             ->editColumn('reg_no', function ($hire) {
-                return '<span class="badge badge-dark badge-pill">Sale</span>';
+                return '<a style="cursor:pointer" href="/car/hire/' . $hire->id . '"><span class="badge badge-dark badge-pill">' . $hire->reg_no . '</span></a>';
             })
 
             ->rawColumns(['reg_no', 'action', 'sale_status', 'auction_name'])

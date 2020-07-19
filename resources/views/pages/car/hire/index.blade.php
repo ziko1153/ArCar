@@ -44,6 +44,127 @@
     
 </div>
 </div>
+{{-- Edit Modal Form --}}
+
+@section('modal-content')
+
+    <div class="modal-body">
+        <span id="form_result"></span>
+<form method="post" class="form-horizontal" id="editForm">
+        
+        @csrf
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Car Name:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control" placeholder="Enter Car Name" name="car_name" value="">
+                </div>
+           
+            </div>
+       
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Car Price:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="number" 
+                 class="form-control" 
+                  placeholder="Enter Car Name" 
+                  name="car_price" 
+                  value=""
+                  step="0.01"
+                  min="0"
+                  
+                  />
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Reg No:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control " placeholder="Enter Car Name" name="reg_no" value="">
+
+                </div>
+                
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Auction Name:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control " placeholder="Enter Car Name" name="auction_name" value="">
+
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Auction Place:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control " placeholder="Enter Auction Place" name="auction_place" value="">
+
+
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Parking Place:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control " placeholder="Enter Parking Place Name " name="parking_place" value="">
+
+              
+            </div>
+          
+        </div>
+       </div>
+
+        <div class="form-group row">
+            
+            <label  class="col-form-label col-lg-2">Buying Date:</label>
+                <div class="col-lg-10 input-group">
+                 
+                    <span class="input-group-prepend">
+                        <span class="input-group-text"><i class="icon-calendar22"></i></span>
+                    </span>
+                <input type="text" class="form-control daterange-single " value="" name="buying_date">
+                    <br>
+                  
+              
+                    
+                </div>
+            
+        </div>
+
+        <div class="form-group row mb-0">
+            <div class="col-lg-10 ml-lg-auto">
+                <div class="d-flex justify-content-between align-items-center">
+                    <input type="hidden" name="hidden_id" id="hidden_id" />
+                    <button type="submit" class="btn bg-primary">Edit Hire Car <i class="icon-paperplane ml-2"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+    </div>
+</form>
+
+@endsection
+
+
 
 @endsection
 
@@ -188,6 +309,74 @@
         },
     });
 
+
+        /// Get Edit Form Modal 
+
+        $(document).on('click','.edit',function(){
+            let id  = $(this).attr('id');
+            $('#modalForm').modal('show');
+            $('#editForm').css('display','none');
+            $('#form_result').html('<h1>Getting Data.....</h1>');
+            let request = $.ajax({
+                url: "/car/hire/"+id+"/edit",
+                data: {
+                 id:id,
+                _token: CSRF_TOKEN
+                 },
+                dataType: "json"
+                });
+            
+                request.done(function( msg ) {
+                    console.log(msg);
+                    if(msg.response === 'success'){
+                        $( "input[name*='car_name']" ).val(msg.data.car_name);
+                        $( "input[name*='reg_no']" ).val(msg.data.reg_no);
+                        $( "input[name*='car_price']" ).val(msg.data.car_price);
+                        $('#editForm').css('display','');
+                        $('#form_result').html('');
+                        $('.modal-title').text('Edit Record');
+                        
+
+                    }
+
+                });
+            
+                request.fail(function( jqXHR, textStatus ) {
+                alert( "Request failed: " + textStatus );
+                });
+            
+        })
+
+        //// Submit Form 
+       $('#editForm').on('submit', function(event){
+          event.preventDefault();
+
+
+         let request =   $.ajax({
+                            url: "{{route('car.update')}}",
+                            method:"POST",
+                            data:$(this).serialize(),
+                            dataType:"json"
+                         });
+            
+        request.done(function( msg ) {
+            console.log(msg);
+
+         });
+        
+         request.fail(function( jqXHR, textStatus ) {
+                    alert( "Request failed: " + textStatus );
+         });
+                        
+    });
+
+    $('.daterange-single').daterangepicker({ 
+            singleDatePicker: true,
+            startDate: moment(),
+            locale: {
+            format: 'YYYY-MM-DD'
+        }
+     });
 
 
 </script>

@@ -24,6 +24,7 @@ Route::get('/car/hire', 'HireController@index')->name('car.show');
 Route::post('/car/hire/ajax', 'HireController@index')->name('car.showajax');
 Route::get('/car/hire/create', 'HireController@create')->name('car.create')->middleware('auth');
 Route::post('/car/hire', 'HireController@store');
+Route::post('/car/update', 'HireController@update')->name('car.update');
 Route::get('/car/hire/{id}/edit', 'HireController@edit')->name('car.edit');
 
 Route::get('/car/sale', function () {

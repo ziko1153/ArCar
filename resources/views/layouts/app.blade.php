@@ -23,6 +23,9 @@
         <!-- /main content -->
 
     </div>
+
+    {{-- Modal Add --}}
+    @include('layouts.modal');
     <!-- /page content -->
 
 @include('layouts.footer')
