@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 use App\Hire;
 use DataTables;
 use Illuminate\Support\Facades\DB;
-use Validator;
 
 class HireController extends Controller {
 

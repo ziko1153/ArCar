@@ -52,7 +52,7 @@
             </li>
 
             <li class="nav-item">
-                <a href="/customer" class="navbar-nav-link {{ Request::is('/customer') ? 'active' : '' }}">
+                <a href="/customer" class="navbar-nav-link {{ Request::is('customer') ? 'active' : '' }}">
                             <i class="icon-users4 mr-2"></i>
                            Customer
                         </a>

@@ -30,6 +30,9 @@ Route::get('/car/hire/{id}/edit', 'HireController@edit')->name('car.edit');
 
 ///// Customer Route Handler
 Route::get('/customer', 'CustomerController@index');
+Route::post('/customer/show', 'CustomerController@index')->name('customer.showajax');
+Route::post('/customer/add', 'CustomerController@store')->name('customer.store');
+Route::post('/customer/update', 'CustomerController@update')->name('customer.update');
 
 Route::get('/car/sale', function () {
     return view('pages.car.sale');

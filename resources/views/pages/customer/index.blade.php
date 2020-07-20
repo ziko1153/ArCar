@@ -17,54 +17,48 @@
 <div class="row ">
     <div class="col-md-12 ">
 
-      <!-- DataTable of Product list -->
+      <!-- DataTable of Customer list -->
   <div class="card">
-    <div class="card-header header-elements-inline ">
-      <h5 class="card-title font-weight-bold text-uppercase">Car Hire List</h5>
-        @if(!empty($message))
-        <div class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-            <span class="font-weight-semibold">Well done!</span>Successfully Car Addedd
-        </div>
-        @endif
+    <div class="card-header header-elements-inline  ">
+      <h2 class="card-title font-weight-bold text-uppercase">Customer List</h2>
+ 
+      <button type="button" class="btn bg-primary addCustomerBtn" data-toggle="modal" data-target="#modalForm">Add Customer<i class="icon-play3 ml-2"></i></button>
 
     </div>
+
     <div class="card-body border-top-1">
       <table class="table datatable-basic table-hover table-bordered" style="font-size:1rem">
         <thead class="bg-dark">
           <tr>
             <th>Sl.</th>
-            <th>Reg No.</th>
-            <th>Car Name</th>
-            <th>Price</th>
-            <th>Auction</th>
-            <th>Parking Place</th>
-            <th>Buying Date</th>
-            <th>Sale Status</th>
+            <th>Customer Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Address</th>
             <th>Action</th>
           </tr>
         </thead>
       </table>
     </div>
   </div>
-  <!-- /DataTable of Product list -->
+  <!-- /DataTable of Customer list -->
     
 </div>
 </div>
-{{-- Edit Modal Form --}}
+{{--  Modal Form --}}
 
 @section('modal-content')
 
     <div class="modal-body">
         <span id="form_result"></span>
-<form method="post" class="form-horizontal" id="editForm">
+<form method="post" class="form-horizontal" id="sample_form">
         
         @csrf
         <div class="form-group row">
-            <label class="col-form-label col-lg-2">Car Name:</label>
+            <label class="col-form-label col-lg-2">Customer Name:</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control" placeholder="Enter Car Name" name="car_name" value="">
+                <input type="text" class="form-control" placeholder="Enter Car Name" name="cust_name" value="">
                 </div>
            
             </div>
@@ -72,18 +66,16 @@
         </div>
 
         <div class="form-group row">
-            <label class="col-form-label col-lg-2">Car Price:</label>
+            <label class="col-form-label col-lg-2">Customer Mobile:</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
                 <input
                  type="number" 
                  class="form-control" 
-                  placeholder="Enter Car Name" 
-                  name="car_price" 
+                  placeholder="Enter Customer  Email" 
+                  name="cust_mobile"
                   value=""
-                  step="0.01"
                   min="0"
-                  
                   />
                 </div>
             </div>
@@ -91,10 +83,10 @@
         </div>
 
         <div class="form-group row">
-            <label class="col-form-label col-lg-2">Reg No:</label>
+            <label class="col-form-label col-lg-2">Customer Email:</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Car Name" name="reg_no" value="">
+                <input type="email" class="form-control " placeholder="Enter Customer Email Address" name="cust_email" value="">
 
                 </div>
                 
@@ -103,71 +95,34 @@
         </div>
 
         <div class="form-group row">
-            <label class="col-form-label col-lg-2">Auction Name:</label>
+            <label class="col-form-label col-lg-2">Customer Address:</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Car Name" name="auction_name" value="">
+                <input type="text" class="form-control " placeholder="Enter Customer Address" name="cust_address" value="">
 
                 </div>
             </div>
           
         </div>
 
-        <div class="form-group row">
-            <label class="col-form-label col-lg-2">Auction Place:</label>
-            <div class="col-lg-10">
-                <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Auction Place" name="auction_place" value="">
 
-
-                </div>
-            </div>
-          
-        </div>
-
-        <div class="form-group row">
-            <label class="col-form-label col-lg-2">Parking Place:</label>
-            <div class="col-lg-10">
-                <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Parking Place Name " name="parking_place" value="">
-
-              
-            </div>
-          
-        </div>
-       </div>
-
-        <div class="form-group row">
-            
-            <label  class="col-form-label col-lg-2">Buying Date:</label>
-                <div class="col-lg-10 input-group">
-                 
-                    <span class="input-group-prepend">
-                        <span class="input-group-text"><i class="icon-calendar22"></i></span>
-                    </span>
-                <input type="text" class="form-control daterange-single " value="" name="buying_date">
-                    <br>
-                  
-              
-                    
-                </div>
-            
-        </div>
 
         <div class="form-group row mb-0">
             <div class="col-lg-10 ml-lg-auto">
                 <div class="d-flex justify-content-between align-items-center">
-                    <input type="hidden" name="hidden_id" id="hidden_id" />
-                    <button type="submit" class="btn bg-primary">Edit Hire Car <i class="icon-paperplane ml-2"></i></button>
+                 <input type="hidden" name="action" id="action" value="Add" />
+                 <input type="hidden" name="hidden_id" id="hidden_id" />
+                 <input type="submit" name="action_button" id="action_button" class="btn btn-warning" value="Add Customer" />
                 </div>
             </div>
         </div>
+    </form>
     </div>
 
     <div class="modal-footer">
         <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
     </div>
-</form>
+
 
 @endsection
 
@@ -179,6 +134,13 @@
 @section('extra-script')
 <script type="text/javascript" defer>
  let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+$('.addCustomerBtn').click(function(){
+  $('.modal-title').text('Add New Customer');
+  $('#action_button').val('Add');
+  $('#action').val('Add');
+  $('#form_result').html('');
+
+ });
 
     // Setting datatable defaults
     $.extend($.fn.dataTable.defaults, {
@@ -212,13 +174,13 @@
             }
         }
     });
-    let getCarListDataTable = $('.datatable-basic').DataTable({
+    let getCustomerDataTable = $('.datatable-basic').DataTable({
         processing: true,
         'serverSide': true,
         'ordering': true,
         'order': [],
         'ajax': {
-            url: "{{route('car.showajax')}}",
+            url: "{{route('customer.showajax')}}",
             type: 'POST',
             data: {
                 _token: CSRF_TOKEN
@@ -249,13 +211,10 @@
         }],
         columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex' },
-                {data:'reg_no'},
-                {data: 'car_name'},
-                {data: 'car_price'},
-                {data: 'auction_name'},
-                {data: 'parking_place'},
-                {data: 'buying_date'},
-                {data: 'sale_status'},
+                {data: 'cust_name'},
+                {data: 'cust_email'},
+                {data: 'cust_mobile'},
+                {data: 'cust_address'},
                 {data: 'action'}
 
             ], 
@@ -278,7 +237,7 @@
                 {
                     extend: 'csv',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2,3]
                     }
 
                 },
@@ -286,7 +245,7 @@
                 {
                     extend: 'excel',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2,3]
                     }
                 },
 
@@ -295,7 +254,7 @@
 
                     title: 'Company name will Be Here',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2,3]
 
                     }
 
@@ -306,7 +265,7 @@
                     footer: true,
                     title: '{!!config('app.name')!!}',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        columns: [0, 1, 2,3],
                         stripHtml: false
                     }
 
@@ -324,6 +283,49 @@
             <span class="font-weight-semibold">Message: </span>${message}</div>`);
         }
 
+
+    $('#sample_form').on('submit', function(event){
+                event.preventDefault();
+                let action_url = '';
+
+                if($('#action').val() == 'Add')
+                {
+                    action_url = "{{ route('customer.store') }}";
+                }
+
+                if($('#action').val() == 'Edit')
+                {
+                 action_url = "{{ route('customer.update') }}";
+                }
+
+
+            $.ajax({
+                url: action_url,
+                method:"POST",
+                data:$(this).serialize(),
+                dataType:"json",
+                success:function(data)
+                {
+                    var html = '';
+                    if(data.errors)
+                    {
+                    html = '<div class="alert alert-danger">';
+                    for(var count = 0; count < data.errors.length; count++)
+                    {
+                    html += '<p>' + data.errors[count] + '</p>';
+                    }
+                    html += '</div>';
+                    }
+                    if(data.success)
+                    {
+                    html = '<div class="alert alert-success">' + data.success + '</div>';
+                    $('#sample_form')[0].reset();
+                    getCustomerDataTable.ajax.reload();
+                    }
+                    $('#form_result').html(html);
+                }
+            });
+    });
         /// Get Edit Form Modal 
 
         $(document).on('click','.edit',function(){
