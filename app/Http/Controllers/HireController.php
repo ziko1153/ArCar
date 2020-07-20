@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Hire;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use Validator;
 
 class HireController extends Controller {
 
@@ -62,7 +63,7 @@ class HireController extends Controller {
     }
 
     public function update() {
-        error_log($request->all());
+        //error_log(request->all());
         $rules = array(
             'car_name' => 'required',
             'car_price' => 'required|numeric',
@@ -73,24 +74,24 @@ class HireController extends Controller {
             'parking_place' => '',
         );
 
-        $error = Validator::make($request->all(), $rules);
+        $error = Validator::make(request()->all(), $rules);
 
         if ($error->fails()) {
             return response()->json(['errors' => $error->errors()->all()]);
         }
 
         $form_data = array(
-            'car_name' => $request->first_name,
-            'car_price' => $request->car_price,
-            'reg_no' => $request->reg_no,
-            'auction_name' => $request->auction_name,
-            'buying_date' => $request->buying_date,
-            'auction_place' => $request->auction_place,
-            'parking_place' => $request->parking_place,
+            'car_name' => request()->car_name,
+            'car_price' => request()->car_price,
+            'reg_no' => request()->reg_no,
+            'auction_name' => request()->auction_name,
+            'buying_date' => request()->buying_date,
+            'auction_place' => request()->auction_place,
+            'parking_place' => request()->parking_place,
             'user_id' => request()->user()->id,
         );
 
-        Hire::whereId($request->hidden_id)->update($form_data);
+        Hire::whereId(request()->hidden_id)->update($form_data);
 
         return response()->json(['success' => 'Data is successfully updated']);
 

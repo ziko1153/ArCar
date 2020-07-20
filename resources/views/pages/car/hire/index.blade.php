@@ -204,7 +204,7 @@
             }
         }
     });
-    var getProductList = $('.datatable-basic').DataTable({
+    let getCarListDataTable = $('.datatable-basic').DataTable({
         processing: true,
         'serverSide': true,
         'ordering': true,
@@ -240,17 +240,17 @@
             "orderable": false
         }],
         columns: [
-{ data: 'DT_RowIndex', name: 'DT_RowIndex' },
-{data:'reg_no'},
-{data: 'car_name'},
-{data: 'car_price'},
-{data: 'auction_name'},
-{data: 'parking_place'},
-{data: 'buying_date'},
-{data: 'sale_status'},
-{data: 'action'}
+                { data: 'DT_RowIndex', name: 'DT_RowIndex' },
+                {data:'reg_no'},
+                {data: 'car_name'},
+                {data: 'car_price'},
+                {data: 'auction_name'},
+                {data: 'parking_place'},
+                {data: 'buying_date'},
+                {data: 'sale_status'},
+                {data: 'action'}
 
-  ], 
+            ], 
 
         buttons: {
             dom: {
@@ -309,6 +309,12 @@
         },
     });
 
+const formMessageShow = (message,type='info') => {
+    (message==="")? display = 'd-none' : display = '';
+    $('#form_result').html(`<div class="${display} alert alert-${type} alert-rounded alert-dismissible">
+	<button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+	<span class="font-weight-semibold">Message: </span>${message}</div>`);
+}
 
         /// Get Edit Form Modal 
 
@@ -316,12 +322,11 @@
             let id  = $(this).attr('id');
             $('#modalForm').modal('show');
             $('#editForm').css('display','none');
-            $('#form_result').html('<h1>Getting Data.....</h1>');
+            formMessageShow('Getting Data From Server....');
             let request = $.ajax({
                 url: "/car/hire/"+id+"/edit",
                 data: {
-                 id:id,
-                _token: CSRF_TOKEN
+                 id:id
                  },
                 dataType: "json"
                 });
@@ -332,8 +337,9 @@
                         $( "input[name*='car_name']" ).val(msg.data.car_name);
                         $( "input[name*='reg_no']" ).val(msg.data.reg_no);
                         $( "input[name*='car_price']" ).val(msg.data.car_price);
+                        $( "#hidden_id" ).val(msg.data.id);
                         $('#editForm').css('display','');
-                        $('#form_result').html('');
+                        formMessageShow('');
                         $('.modal-title').text('Edit Record');
                         
 
@@ -342,15 +348,14 @@
                 });
             
                 request.fail(function( jqXHR, textStatus ) {
-                alert( "Request failed: " + textStatus );
+                    formMessageShow(`Server Error ${textStatus}`,'danger');
                 });
             
-        })
+        });
 
         //// Submit Form 
        $('#editForm').on('submit', function(event){
           event.preventDefault();
-
 
          let request =   $.ajax({
                             url: "{{route('car.update')}}",
@@ -360,12 +365,23 @@
                          });
             
         request.done(function( msg ) {
-            console.log(msg);
-
+            if(msg.errors){
+                let errorMsg = `<ul>`;
+                msg.errors.forEach( (error) =>{
+                    errorMsg += `<li>${error}</li>`;
+                });
+                errorMsg += `</ul>`;
+                formMessageShow(`Error: ${errorMsg}`,'danger');
+            }
+            else {
+                formMessageShow(`${msg.success}`,'success');
+                $('#editForm')[0].reset();
+                getCarListDataTable.ajax.reload(null, false);
+            }
          });
         
-         request.fail(function( jqXHR, textStatus ) {
-                    alert( "Request failed: " + textStatus );
+        request.fail(function( jqXHR, textStatus ) {
+            formMessageShow(`Internal Server ${textStatus} Failed Edit  ${jqXHR} `,'danger');
          });
                         
     });
