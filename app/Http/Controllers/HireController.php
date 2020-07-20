@@ -50,7 +50,7 @@ class HireController extends Controller {
 
         ]) + ['user_id' => request()->user()->id]);
 
-        return redirect('/car/hire');
+        return view('pages.car.hire.index')->with(['message' => 'Successfully Added Car']);
 
     }
 
@@ -97,6 +97,14 @@ class HireController extends Controller {
 
     }
 
+    public function destroy() {
+        $data = Hire::findOrFail(request()->id);
+        if ($data->delete()) {
+            return response()->json(['success' => 'Deleted Successfully']);
+        }
+        return response()->json(['error' => 'Sorry Bad Request Something Went Wrong']);
+    }
+
     protected function getDataTablesView($hire) {
         return DataTables::of($hire)
             ->addIndexColumn()
@@ -129,6 +137,10 @@ class HireController extends Controller {
 
             ->editColumn('reg_no', function ($hire) {
                 return '<a style="cursor:pointer" href="/car/hire/' . $hire->id . '"><span class="badge badge-dark badge-pill">' . $hire->reg_no . '</span></a>';
+            })
+            ->editColumn('buying_date', function ($hire) {
+
+                return date('d-M-Y', strtotime($hire->buying_date));
             })
 
             ->rawColumns(['reg_no', 'action', 'sale_status', 'auction_name'])

@@ -25,7 +25,11 @@ Route::post('/car/hire/ajax', 'HireController@index')->name('car.showajax');
 Route::get('/car/hire/create', 'HireController@create')->name('car.create')->middleware('auth');
 Route::post('/car/hire', 'HireController@store');
 Route::post('/car/update', 'HireController@update')->name('car.update');
+Route::post('/car/destroy', 'HireController@destroy')->name('car.delete');
 Route::get('/car/hire/{id}/edit', 'HireController@edit')->name('car.edit');
+
+///// Customer Route Handler
+Route::get('/customer', 'CustomerController@index');
 
 Route::get('/car/sale', function () {
     return view('pages.car.sale');
