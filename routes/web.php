@@ -33,6 +33,8 @@ Route::get('/customer', 'CustomerController@index');
 Route::post('/customer/show', 'CustomerController@index')->name('customer.showajax');
 Route::post('/customer/add', 'CustomerController@store')->name('customer.store');
 Route::post('/customer/update', 'CustomerController@update')->name('customer.update');
+Route::get('/customer/{id}/edit', 'CustomerController@edit');
+Route::post('/customer/destroy', 'CustomerController@destroy')->name('customer.delete');
 
 Route::get('/car/sale', function () {
     return view('pages.car.sale');

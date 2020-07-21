@@ -54,6 +54,19 @@ class CustomerController extends Controller {
     }
 
     /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Customer  $Customer
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id) {
+        if (request()->ajax()) {
+            $data = Customer::findOrFail($id);
+            return response()->json(['result' => $data]);
+        }
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -81,6 +94,19 @@ class CustomerController extends Controller {
 
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Sample_data  $sample_data
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy() {
+        $data = Customer::findOrFail(request()->id);
+        if ($data->delete()) {
+            return response()->json(['success' => 'Deleted Successfully']);
+        }
+        return response()->json(['error' => 'Sorry Bad Request Something Went Wrong']);
+    }
     protected function getDataTablesView($customer) {
         return DataTables::of($customer)
             ->addIndexColumn()
@@ -111,7 +137,7 @@ class CustomerController extends Controller {
     protected function validateCustomer($request) {
         $rules = array(
             'cust_name' => 'required|min:3',
-            'cust_email' => 'nullable|email|unique:customers',
+            'cust_email' => 'nullable|email|unique:customers,cust_email,' . $request->hidden_id,
             'cust_mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
             'cust_address' => 'nullable|min:3',
         );

@@ -72,7 +72,7 @@
                 <input
                  type="number" 
                  class="form-control" 
-                  placeholder="Enter Customer  Email" 
+                  placeholder="Enter Customer  Mobile Number" 
                   name="cust_mobile"
                   value=""
                   min="0"
@@ -136,7 +136,7 @@
  let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 $('.addCustomerBtn').click(function(){
   $('.modal-title').text('Add New Customer');
-  $('#action_button').val('Add');
+  $('#action_button').val('Add Customer');
   $('#action').val('Add');
   $('#form_result').html('');
 
@@ -199,6 +199,13 @@ $('.addCustomerBtn').click(function(){
                 console.log('DataTable Get Data From Ajax Failed.');
                 console.log(xhr);
                 console.log(error);
+                if(jqXHR.status===419) {
+                            alert('Something Went Wrong !! We are going to reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                }
+
             },
             complete: function() {
                 // $('body').loadingModal('hide');
@@ -321,84 +328,55 @@ $('.addCustomerBtn').click(function(){
                     html = '<div class="alert alert-success">' + data.success + '</div>';
                     $('#sample_form')[0].reset();
                     getCustomerDataTable.ajax.reload();
+                    setTimeout(()=>$('#modalForm').modal('hide'),1000);
                     }
                     $('#form_result').html(html);
+                    
+                },
+                error:function(jqXHR,textStatus) {
+                    console.log(jqXHR);
+                    if(jqXHR.status === 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
                 }
             });
     });
         /// Get Edit Form Modal 
 
         $(document).on('click','.edit',function(){
-            let id  = $(this).attr('id');
-            $('#modalForm').modal('show');
-            $('#editForm').css('display','none');
-            formMessageShow('Getting Data From Server....');
-            let request = $.ajax({
-                url: "/car/hire/"+id+"/edit",
-                data: {
-                 id:id
-                 },
-                dataType: "json"
-                });
             
-                request.done(function( msg ) {
-                    console.log(msg);
-                    if(msg.response === 'success'){
-                        $( "input[name*='car_name']" ).val(msg.data.car_name);
-                        $( "input[name*='reg_no']" ).val(msg.data.reg_no);
-                        $( "input[name*='car_price']" ).val(msg.data.car_price);
-                        $( "input[name*='auction_name']" ).val(msg.data.auction_name);
-                        $( "input[name*='auction_place']" ).val(msg.data.acution_place);
-                        $( "input[name*='buying_date']" ).val(msg.data.buying_date);
-                        $( "input[name*='parking_place']" ).val(msg.data.parking_place);
-                        $( "#hidden_id" ).val(msg.data.id);
-                        $('#editForm').css('display','');
-                        formMessageShow('');
-                        $('.modal-title').text('Edit Record');
-                        
-
+              let  id = $(this).attr('id');
+                $('#form_result').html('');
+                $.ajax({
+                url :"/customer/"+id+"/edit",
+                dataType:"json",
+                success:function(data)
+                {
+                    $("input[name*='cust_name']").val(data.result.cust_name);
+                    $("input[name*='cust_mobile']").val(data.result.cust_mobile);
+                    $("input[name*='cust_address']").val(data.result.cust_address);
+                    $("input[name*='cust_email']").val(data.result.cust_email);
+                    $('#hidden_id').val(id);
+                    $('.modal-title').text('Edit Record');
+                    $('#action_button').val('Edit Customer Data');
+                    $('#action').val('Edit');
+                    $('#modalForm').modal('show');
+                },
+                error:function(jqXHR,textStatus) {
+                    if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
                     }
-
-                });
-            
-                request.fail(function( jqXHR, textStatus ) {
-                    formMessageShow(`Server Error ${textStatus}`,'danger');
-                });
+                }
+                })
             
         });
 
-        //// Submit Form 
-       $('#editForm').on('submit', function(event){
-          event.preventDefault();
-
-         let request =   $.ajax({
-                            url: "{{route('car.update')}}",
-                            method:"POST",
-                            data:$(this).serialize(),
-                            dataType:"json"
-                         });
-            
-         request.done(function( msg ) {
-            if(msg.errors){
-                let errorMsg = `<ul>`;
-                msg.errors.forEach( (error) =>{
-                    errorMsg += `<li>${error}</li>`;
-                });
-                errorMsg += `</ul>`;
-                formMessageShow(`Error: ${errorMsg}`,'danger');
-            }
-            else {
-                formMessageShow(`${msg.success}`,'success');
-                $('#editForm')[0].reset();
-                getCarListDataTable.ajax.reload(null, false);
-            }
-         });
-        
-        request.fail(function( jqXHR, textStatus ) {
-            formMessageShow(`Internal Server ${textStatus} Failed Edit  ${jqXHR} `,'danger');
-         });
-                        
-       });
 
        ///// Date Range Select
         $('.daterange-single').daterangepicker({ 
@@ -412,17 +390,17 @@ $('.addCustomerBtn').click(function(){
         //// Delete Car List
 
         $(document).on('click', '.delete', function(){
-                carId = $(this).attr('id');
+                customerId = $(this).attr('id');
                 $('#confirmModal').modal('show');
-                
+                $('.modal-title').text('Delete Record');
         });
 
         $('#confirm_btn').click(function(){
             
             $.ajax({
-                    url: "{{route('car.delete')}}",
+                    url: "{{route('customer.delete')}}",
                     method:"POST",
-                    data: {id:carId, _token: CSRF_TOKEN},
+                    data: {id:customerId, _token: CSRF_TOKEN},
                     dataType:'json',
                     beforeSend:function(){
                         $('#confirm_btn').prop('disabled', true);
@@ -433,13 +411,19 @@ $('.addCustomerBtn').click(function(){
                         $('#confirm_btn').prop('disabled', false);
                         $('#confirmModal').modal('hide');
                         $('#confirm_btn').text('Delete');
-                        getCarListDataTable.ajax.reload(null, false);
+                        getCustomerDataTable.ajax.reload(null, false);
                     },
                     error:function(jqXHR, textStatus) { 
                         $('#confirm_btn').prop('disabled', false);
                         $('#confirm_btn').text('Delete');
-                        alert('Internal Server Error');
+                        //alert('Internal Server Error');
                         console.log(jqXHR,textStatus);
+                        if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
                     }
             });
         });

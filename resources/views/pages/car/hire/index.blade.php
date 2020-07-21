@@ -361,6 +361,12 @@
             
                 request.fail(function( jqXHR, textStatus ) {
                     formMessageShow(`Server Error ${textStatus}`,'danger');
+                    if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
                 });
             
         });
@@ -394,6 +400,12 @@
         
         request.fail(function( jqXHR, textStatus ) {
             formMessageShow(`Internal Server ${textStatus} Failed Edit  ${jqXHR} `,'danger');
+            if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
          });
                         
        });
@@ -438,6 +450,12 @@
                         $('#confirm_btn').text('Delete');
                         alert('Internal Server Error');
                         console.log(jqXHR,textStatus);
+                        if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
                     }
             });
         });
