@@ -36,7 +36,8 @@ Route::post('/customer/update', 'CustomerController@update')->name('customer.upd
 Route::get('/customer/{id}/edit', 'CustomerController@edit');
 Route::post('/customer/destroy', 'CustomerController@destroy')->name('customer.delete');
 
+/// Car Sale Route Handler
 Route::get('/car/sale', function () {
-    return view('pages.car.sale');
+    return view('pages.car.sale.index');
 })->name('car.sale');
 Auth::routes();
