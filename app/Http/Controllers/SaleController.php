@@ -30,7 +30,7 @@ class SaleController extends Controller {
 
         foreach ($cars as $car) {
             $list['id'] = $car->id;
-            $list['value'] = $car->car_name;
+            $list['value'] = $car->reg_no . ' || ' . $car->car_name . ' || ' . $car->auction_name;
             $list['reg_no'] = $car->reg_no;
             $list['car_price'] = $car->car_price;
             $list['auction_name'] = $car->auction_name;
