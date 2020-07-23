@@ -50,7 +50,7 @@ class HireController extends Controller {
 
         ]) + ['user_id' => request()->user()->id]);
 
-        return view('pages.car.hire.index')->with(['message' => 'Successfully Added Car']);
+        return redirect('/car/hire')->with(['message' => 'Successfully Added Car']);
 
     }
 

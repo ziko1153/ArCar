@@ -2,7 +2,8 @@
 
 @section('extra-header')
 <script src="/global_assets/js/plugins/extensions/jquery_ui/full.min.js"></script>
-<script src="../../../../global_assets/js/plugins/forms/selects/select2.min.js"></script>
+<script src="/global_assets/js/plugins/forms/selects/select2.min.js"></script>
+<script src="/global_assets/js/plugins/notifications/pnotify.min.js"></script>
 @endsection
 @section('content')
 
@@ -94,7 +95,7 @@
             
             <div class="card-body">
                 <div class="table-responsive table-hover table-striped table-scrollable">
-                    <table class="table">
+                    <table class="table salesTable">
                         <thead>
                             <tr class="bg-dark">
                                 <th>Car Details</th>
@@ -207,12 +208,11 @@
                             <table class="table">
                                 <tbody style="font-size:1.2rem">
                                     <tr>
-                                    <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-success"><i class="icon-stack-check mr-2"></i> Save </button></th>
+                                    <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-success btnSave"><i class="icon-stack-check mr-2"></i> Save </button></th>
 
-                                    <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2"></i>Print & Save</button>
+                                    <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Save</button>
                                     </th>
-                                    <th colspan="1"  class="table-active text-center"><button type="button" class="btn btn-outline-danger btn-lg"><i class="
-                                        icon-bell3 mr-2"></i> Draft </button></th>
+                                    <th colspan="1"  class="table-active text-center"><button type="button" class="btn btn-outline-danger btn-lg btnDraft"><i class="icon-bell3 mr-2"></i> Draft </button></th>
                                     </tr>
                                     <tr  class="table-border-double">
                                       
@@ -246,6 +246,16 @@ let carList  = @json($carList);
 let customerList = @json($customerList);
 let saleCarList = [];
 let selectedCustomerId = 0;
+
+$('.showLoss').hide();
+
+let  pAlertError = (title, text)  => {
+    new PNotify({
+        title: title,
+        text: text,
+        addclass: 'bg-danger border-danger'
+    });
+}
 
     $(".checkForDot").focusout(function() {
         let val = $(this).val();
@@ -456,7 +466,6 @@ let calculate = () =>{
             buyingPrice += element.buyingPrice;
 
         });
-        console.log(paymentInp);
         if(discountInp > 0 && salePrice>0){
         discountPercent = (discountInp/salePrice)*100;
 
@@ -465,15 +474,56 @@ let calculate = () =>{
         totalCost = salePrice - discountInp;
         totalDue = totalCost - paymentInp;
 
+        (salePrice<buyingPrice)?$('.showLoss').show():$('.showLoss').hide();
         $('.showBuyingPrice').text(`€${buyingPrice.toLocaleString()}`);
         $('.showSalePrice').text(`€${salePrice.toLocaleString()}`);
         $('.showDiscountAmount').text(`€${discountInp.toLocaleString()}`);
         $('.showDiscountPercent').text(`${discountPercent.toFixed(2).toLocaleString()}%`);
         $('.showTotalPayment').text(`€${paymentInp.toLocaleString()}`);
         if(totalCost>=0) $('.showTotalCost').text(`€${totalCost.toLocaleString()}`);
-         $('.showTotalDue').text(`€${totalDue.toLocaleString()}`);
+        $('.showTotalDue').text(`€${totalDue.toLocaleString()}`);
        
 }
+
+
+///// Save Sale
+
+$('.btnSave').on('click',e=>{
+
+            takePayment('save');
+           
+});
+
+
+let takePayment = (type='save')=>{
+    let paymentAmount = +document.getElementById('paymentInp').value;
+    let discountAmount = +document.getElementById('discountInp').value;
+   let rowCount = document.getElementsByClassName('salesTable')[0].tBodies[0].rows.length;
+   let salePrice = saleCarList.filter(car => car.salePrice === 0);
+   console.log(paymentAmount);
+    if(selectedCustomerId === 0 || selectedCustomerId === "" || typeof selectedCustomerId !== 'number') return pAlertError('Wrong Customer Select',"Please Select Customer First");
+    if(rowCount<=0) return pAlertError('Empty Sales Table',"Please Add Car");
+    if(salePrice.length >0){
+       let cars =  salePrice.map(price => carList.find(car => car.id === price.id).value);
+       cars.forEach(name => pAlertError('Sale Price Zero or Empty',`Please Sale Price Add in ${name}`) );
+        return;
+    }
+
+    if(typeof paymentAmount!=='number') return pAlertError('Invalid Payment Amount','Please Check Payment Amount');
+    if(typeof discountAmount!=='number') return pAlertError('Invalid Discount Amount','Please Check Discount Amount');
+
+    const data  = {
+        carList:saleCarList,
+        customerId:selectedCustomerId,
+        paymentAmount,
+        discountAmount
+    }
+
+    console.log(data);
+    
+
+}
+
 
 
 </script>

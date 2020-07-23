@@ -21,12 +21,15 @@
   <div class="card">
     <div class="card-header header-elements-inline ">
       <h5 class="card-title font-weight-bold text-uppercase">Car Hire List</h5>
-        @if(!empty($message))
-        <div class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-            <span class="font-weight-semibold">Well done!</span>Successfully Car Addedd
-        </div>
-        @endif
+      @if(Session::has('message'))
+        
+            <div id="showAddMessage" class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+                <span class="font-weight-semibold">Well done!</span>{{Session::get('message')}}
+            </div>
+      
+    @endif
+
 
     </div>
     <div class="card-body border-top-1">
@@ -459,6 +462,12 @@
                     }
             });
         });
+
+
+        setTimeout(()=>{
+
+                $('#showAddMessage').hide();
+        },4000)
 
 
 
