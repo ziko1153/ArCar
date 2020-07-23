@@ -40,4 +40,9 @@ class SaleController extends Controller {
 
     }
 
+    public function store() {
+
+        return response()->json(['success' => true, 'data' => request()->all()]);
+    }
+
 }

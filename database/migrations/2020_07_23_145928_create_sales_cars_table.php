@@ -4,26 +4,25 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSalesTable extends Migration {
+class CreateSalesCarsTable extends Migration {
     /**
      * Run the migrations.
      *
      * @return void
      */
     public function up() {
-        Schema::create('sales', function (Blueprint $table) {
+        Schema::create('sales_cars', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('customer_id');
-            $table->date('sale_date');
-            $table->double('discount');
+            $table->unsignedBigInteger('sale_id');
+            $table->unsignedBigInteger('car_id');
+            $table->double('sale_price');
             $table->timestamps();
-            $table->foreign('user_id')
+            $table->foreign('sale_id')
                 ->references('id')
-                ->on('users');
-            $table->foreign('customer_id')
+                ->on('sales');
+            $table->foreign('car_id')
                 ->references('id')
-                ->on('customers');
+                ->on('hires');
         });
     }
 
@@ -33,6 +32,6 @@ class CreateSalesTable extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('sales');
+        Schema::dropIfExists('sales_cars');
     }
 }

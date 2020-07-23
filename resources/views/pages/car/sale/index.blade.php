@@ -7,6 +7,14 @@
 @endsection
 @section('content')
 
+@if(Session::has('message'))
+        
+<div id="showAddMessage" class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+    <span class="font-weight-semibold">Well done!</span>{{Session::get('message')}}
+</div>
+
+@endif
 
 <style>
     .delBtn:hover {
@@ -18,6 +26,7 @@
     .showDisplay {
         display: none;
     }
+
 </style>
 <div class="row ">
     <div class="col-md-8">
@@ -235,6 +244,25 @@
 
 </div>
 
+{{-- Loading Modal --}}
+<div id="loadingModal" class="modal" tabindex="-1" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sending Data <i class="icon-spinner2 spinner"></i></h5>
+               
+            </div>
+
+            <div class="modal-body">
+               
+                    <h1>Please Wait.....</h1>
+           
+            </div>
+
+        </div>
+    </div>
+</div>
+
 
 @endsection
 
@@ -246,7 +274,7 @@ let carList  = @json($carList);
 let customerList = @json($customerList);
 let saleCarList = [];
 let selectedCustomerId = 0;
-
+let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 $('.showLoss').hide();
 
 let  pAlertError = (title, text)  => {
@@ -489,37 +517,101 @@ let calculate = () =>{
 ///// Save Sale
 
 $('.btnSave').on('click',e=>{
-
-            takePayment('save');
+    let btn = (e.target.tagName === 'BUTTON') ? e.target:e.target.parentNode
+    takePayment('save',btn);
            
 });
 
 
-let takePayment = (type='save')=>{
+let takePayment = (type='save',btn)=>{
     let paymentAmount = +document.getElementById('paymentInp').value;
     let discountAmount = +document.getElementById('discountInp').value;
-   let rowCount = document.getElementsByClassName('salesTable')[0].tBodies[0].rows.length;
-   let salePrice = saleCarList.filter(car => car.salePrice === 0);
-   console.log(paymentAmount);
+    let rowCount = document.getElementsByClassName('salesTable')[0].tBodies[0].rows.length;
+    let salePrice = saleCarList.filter(car => car.salePrice === 0);
+
     if(selectedCustomerId === 0 || selectedCustomerId === "" || typeof selectedCustomerId !== 'number') return pAlertError('Wrong Customer Select',"Please Select Customer First");
+
     if(rowCount<=0) return pAlertError('Empty Sales Table',"Please Add Car");
+
     if(salePrice.length >0){
        let cars =  salePrice.map(price => carList.find(car => car.id === price.id).value);
-       cars.forEach(name => pAlertError('Sale Price Zero or Empty',`Please Sale Price Add in ${name}`) );
+       cars.forEach(name => pAlertError(`Sale Price Can't Zero or Empty`,`Please Sale Price Add in ${name}`) );
         return;
     }
 
     if(typeof paymentAmount!=='number') return pAlertError('Invalid Payment Amount','Please Check Payment Amount');
+
     if(typeof discountAmount!=='number') return pAlertError('Invalid Discount Amount','Please Check Discount Amount');
 
     const data  = {
         carList:saleCarList,
         customerId:selectedCustomerId,
         paymentAmount,
-        discountAmount
+        discountAmount,
+        _token:CSRF_TOKEN
     }
 
-    console.log(data);
+    $.ajax({
+            url: "/car/sale/store",
+            type: 'POST',
+            dataType: 'JSON',
+            data: data,
+            beforeSend: function() {
+                $('.modal-title').html(` <h5 class="modal-title">Sending Data <i class="icon-spinner2 spinner"></i></h5>`);
+                $('.modal-body').html(` <h1>Please Wait.....</h1>`);
+                btn.disabled = true;
+               $('#loadingModal').modal('toggle');
+               
+            },
+            success: function(response) {
+              
+                if(response.success === true) {
+                    $('.modal-title').html(`<h1 class="text-success-800 ">Success</h1>`);
+                    $('.modal-body').html(`<div class="alert bg-success text-white alert-styled-left alert-dismissible">
+									<button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+									<span class="font-weight-semibold">Well done!</span> Sales Has been Added
+							    </div>`);
+
+                    setTimeout(()=>{
+                        //window.location.reload(true);
+                    },3000);
+                }else {
+                    $('#loadingModal').modal('toggle');
+                    
+                    pAlertError('Error','Please Error Check');
+                    
+                }
+
+            },
+            error: function(xhr, error) {
+                if (xhr.readyState == 0 && xhr.status != 200) {
+                    pAlertError('Oppss Offline','Please Check Your Internet Connection');
+                    setTimeout(()=>{
+                        $('#loadingModal').modal('toggle');
+                    },2000);
+                    return;
+                }
+
+                setTimeout(()=>{
+                        $('#loadingModal').modal('toggle');
+                    },5000);
+
+            $('.modal-title').html(`<h1 class="text-danger-800 ">Internal Server Error</h1>`);
+             
+                $('.modal-body').html(`<div class="alert bg-danger text-white alert-styled-left alert-dismissible">
+									<button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+									<span class="font-weight-semibold">Oppsss!! Something Went Wrong.. Error is :\n Message: ${xhr.responseJSON.message}
+                                    Line : ${xhr.responseJSON.line} \n
+                                    File : ${xhr.responseJSON.file}
+							    </div>`);
+                
+            },
+            complete: function() {
+                btn.disabled = false;
+                //$('#loadingModal').modal('hide');
+               
+            }
+    });
     
 
 }

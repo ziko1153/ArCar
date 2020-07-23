@@ -38,4 +38,5 @@ Route::post('/customer/destroy', 'CustomerController@destroy')->name('customer.d
 
 /// Car Sale Route Handler
 Route::get('/car/sale', 'SaleController@index')->name('car.sale');
+Route::post('/car/sale/store', 'SaleController@store');
 Auth::routes();
