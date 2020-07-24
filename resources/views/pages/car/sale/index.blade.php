@@ -85,16 +85,28 @@
         
         {{-- Sale Section --}}
         <div class="card border-left-3 border-left-pink-400 border-right-3 border-right-pink-400 rounded-0 showDisplay">
-            <div class="card-header">
+            <div class="card-header header-elements-inline">
                 <h6 class="card-title"><span class="font-weight-semibold">Car  Add Section</span></h6>
+                <h6 class="card-title"><span class="font-weight-semibold">Sale Date</span></h6>
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="input-group ml-3">
+                    <div class="input-group ml-3 mb-2">
                         <span class="input-group-prepend">
                             <span class="input-group-text"><i class="icon-search4"></i></span>
                         </span>
                         <input type="text" class="form-control mr-4"  id="carSearch" placeholder="Search Car By 'Name' or 'Reg No' or 'Auction Name'">
+                    </div>
+
+                </div>
+
+                <div class="col-md-6">
+                    <div class="input-group ml-3">
+                        <span class="input-group-prepend">
+                            <span class="input-group-text"><i class="
+                                icon-calendar52 "></i></span>
+                        </span>
+                        <input type="text" class="form-control mr-4 daterange-single "  id="saleDate" value="">
                     </div>
 
                 </div>
@@ -348,7 +360,7 @@ if(!checkExistInCart(data.id)){
     insertRow(data)
     addSaleListInCart(data)
 }else {
-    alert('Already Added Into The Cart')
+    PalertError('Error','Same Car Already Exists into The Car')
 }
 
 
@@ -524,6 +536,7 @@ $('.btnSave').on('click',e=>{
 
 
 let takePayment = (type='save',btn)=>{
+    let saleDate = document.getElementById('saleDate').value;
     let paymentAmount = +document.getElementById('paymentInp').value;
     let discountAmount = +document.getElementById('discountInp').value;
     let rowCount = document.getElementsByClassName('salesTable')[0].tBodies[0].rows.length;
@@ -546,6 +559,7 @@ let takePayment = (type='save',btn)=>{
     const data  = {
         carList:saleCarList,
         customerId:selectedCustomerId,
+        saleDate,
         paymentAmount,
         discountAmount,
         _token:CSRF_TOKEN
@@ -577,8 +591,13 @@ let takePayment = (type='save',btn)=>{
                     },3000);
                 }else {
                     $('#loadingModal').modal('toggle');
-                    
-                    pAlertError('Error','Please Error Check');
+                        console.log(response);
+                    if(response.errors) {
+                        let errorNo = 1;
+                        response.errors.forEach(error => {
+                            pAlertError(`Error No: ${errorNo++}`,error);
+                        })
+                    }
                     
                 }
 
@@ -617,6 +636,14 @@ let takePayment = (type='save',btn)=>{
 }
 
 
+///// Date Range Select
+$('.daterange-single').daterangepicker({ 
+                singleDatePicker: true,
+                startDate: moment(),
+                locale: {
+                format: 'YYYY-MM-DD'
+            }
+        });
 
 </script>
 @endsection

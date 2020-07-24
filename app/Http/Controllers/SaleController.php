@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 use App\Customer;
 use App\Hire;
+use App\Sale;
+use Auth;
+use DB;
+use Illuminate\Http\Request;
+use Validator;
 
 class SaleController extends Controller {
     /**
@@ -40,9 +45,51 @@ class SaleController extends Controller {
 
     }
 
-    public function store() {
+    public function store(Request $request) {
+        $error = $this->validateSaleData($request);
 
-        return response()->json(['success' => true, 'data' => request()->all()]);
+        if ($error->fails()) {
+            return response()->json(['errors' => $error->errors()->all()]);
+        }
+        $salesData = array(
+            'user_id' => Auth::id(),
+            'customer_id' => $request->customerId,
+            'sale_date' => $request->saleDate,
+            'discount' => $request->discountAmount,
+        );
+        DB::transaction(function () use ($salesData) {
+            $sale_id = Sale::create($salesData)->id;
+
+        });
+
+        return response()->json(['success' => true, 'data' => $sale_id]);
+    }
+
+    protected function validateSaleData($request) {
+        $rules = array(
+            'customerId' => 'required|exists:customers,id',
+            'paymentAmount' => 'numeric|min:0',
+            'discountAmount' => 'numeric|min:0',
+            'saleDate' => 'required|date_format:Y-m-d',
+            'carList' => 'array|min:1',
+            'carList.*.id' => 'numeric|distinct|exists:hires,id',
+        );
+        $attr = array(
+            'customerId' => 'Customer',
+            'paymentAmount' => 'Payment Amount',
+            'discountAmount' => 'Discount Amount',
+            'carList.*.id' => 'Hire Car',
+        );
+
+        // foreach ($request->get('carList') as $key => $val) {
+        //     $rules['carList.' . $key . '.id'] = 'exists:hires,id';
+        //     $rules['carList.' . $key . '.salePrice'] = 'numeric|min:1';
+
+        //     $attr['carList.' . $key . '.id'] = 'Car List ';
+        // }
+
+        $validator = Validator::make($request->all(), $rules);
+        return $validator->setAttributeNames($attr);
     }
 
 }
