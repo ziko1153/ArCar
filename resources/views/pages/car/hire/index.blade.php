@@ -174,7 +174,7 @@
 
 @endsection
 
-@include('layouts.confirmModal');
+@include('layouts.confirmModal')
 
 
 @endsection

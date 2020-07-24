@@ -360,7 +360,7 @@ if(!checkExistInCart(data.id)){
     insertRow(data)
     addSaleListInCart(data)
 }else {
-    PalertError('Error','Same Car Already Exists into The Car')
+    PAlertError('Error','Same Car Already Exists into The Car')
 }
 
 

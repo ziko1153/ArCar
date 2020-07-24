@@ -16,7 +16,7 @@ class CreateHiresTable extends Migration {
    $table->unsignedBigInteger('user_id');
    $table->string('reg_no');
    $table->text('car_name');
-   $table->string('car_price');
+   $table->double('car_price');
    $table->string('auction_name');
    $table->string('auction_place')->nullable(true);
    $table->string('parking_place')->nullable(true);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Customer;
 use App\Hire;
 use App\Sale;
+use App\SalesCar;
 use Auth;
 use DB;
 use Illuminate\Http\Request;
@@ -46,7 +47,9 @@ class SaleController extends Controller {
     }
 
     public function store(Request $request) {
+
         $error = $this->validateSaleData($request);
+
 
         if ($error->fails()) {
             return response()->json(['errors' => $error->errors()->all()]);
@@ -57,12 +60,27 @@ class SaleController extends Controller {
             'sale_date' => $request->saleDate,
             'discount' => $request->discountAmount,
         );
-        DB::transaction(function () use ($salesData) {
+
+
+
+       $db =   DB::transaction(function () use ($salesData,$request) {
             $sale_id = Sale::create($salesData)->id;
+            foreach ($request['carList'] as $key => $value) {
+
+                $data = array(
+                    'sale_id' => $sale_id,
+                    'car_id' => $request['carList'][$key]['id'],
+                    'sale_price' => $request['carList'][$key]['salePrice'],
+                );
+                SalesCar::create($data);
+            }
+               return true;
 
         });
 
-        return response()->json(['success' => true, 'data' => $sale_id]);
+        return response()->json(['success' => true, 'data' => $db]);
+
+        
     }
 
     protected function validateSaleData($request) {
