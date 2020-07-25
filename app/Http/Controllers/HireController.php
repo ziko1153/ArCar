@@ -124,7 +124,7 @@ class HireController extends Controller {
                 return $button;
             })->setTotalRecords($hire->count())
             ->editColumn('sale_status', function ($hire) {
-                return $hire->sale_status === 0 ? '<span class="badge badge-secondary">Pending</span>' : '<span class="badge badge-primary">Sale</span>';
+                return $hire->sale_status == 0 ? '<span class="badge badge-secondary">Pending</span>' : '<span class="badge badge-primary">Sale</span>';
             })
 
             ->editColumn('auction_name', function ($hire) {

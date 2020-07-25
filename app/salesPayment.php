@@ -4,7 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class salesPayment extends Model
+class SalesPayment extends Model
 {
-    //
+    protected $fillable = [
+        'sale_id', 'payment'];
 }

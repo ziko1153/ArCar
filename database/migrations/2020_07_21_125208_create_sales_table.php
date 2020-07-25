@@ -17,6 +17,8 @@ class CreateSalesTable extends Migration {
             $table->unsignedBigInteger('customer_id');
             $table->date('sale_date');
             $table->double('discount');
+            /// Sales Status 1 = sales &  2 = draft not Sale
+            $table->boolean('sale_status')->default(false);
             $table->timestamps();
             $table->foreign('user_id')
                 ->references('id')

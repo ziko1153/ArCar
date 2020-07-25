@@ -1,649 +1,479 @@
 @extends('layouts.app')
 
 @section('extra-header')
-<script src="/global_assets/js/plugins/extensions/jquery_ui/full.min.js"></script>
-<script src="/global_assets/js/plugins/forms/selects/select2.min.js"></script>
-<script src="/global_assets/js/plugins/notifications/pnotify.min.js"></script>
+   <!-- For Data Table -->
+   <script src="/global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
+   <script src="/global_assets/js/plugins/tables/datatables/extensions/jszip/jszip.min.js"></script>
+   <script src="/global_assets/js/plugins/tables/datatables/extensions/pdfmake/pdfmake.min.js"></script>
+   <script src="/global_assets/js/plugins/tables/datatables/extensions/pdfmake/vfs_fonts.min.js"></script>
+   <script src="/global_assets/js/plugins/tables/datatables/extensions/buttons.min.js"></script>
+
+
 @endsection
-@section('content')
-
-@if(Session::has('message'))
-        
-<div id="showAddMessage" class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
-    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-    <span class="font-weight-semibold">Well done!</span>{{Session::get('message')}}
-</div>
-
-@endif
+    
 
 <style>
-    .delBtn:hover {
-           opacity: 0.5;
-    }
-    .select2-selection {
-        margin:16px
-    }
-    .showDisplay {
-        display: none;
-    }
-
+    .dataList {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 9px 0;
+	border-bottom: tomato 2px solid;
+}
+.dt-button-info {
+    position: absolute;
+    top: 20vh;
+    left:50%;
+    transform: translate(-50%,-50%);
+    background:#333;
+    color: white;
+    padding: 20px;
+}
 </style>
+@section('content')
+
 <div class="row ">
-    <div class="col-md-8">
+    <div class="col-md-12 ">
+
+      <!-- DataTable of Product list -->
+  <div class="card">
+    <div class="card-header header-elements-inline ">
+      <h5 class="card-title font-weight-bold text-uppercase">Sale List</h5>
+      @if(Session::has('message'))
         
-        {{-- Customer Section --}}
-        <div class="card border-left-3 border-left-success-400 border-right-3 border-right-success-400 rounded-0">
-            <div class="card-header header-elements-inline ">
-                <h6 class="card-title"><span class="font-weight-semibold">Customer Add Section</span></h6>
-                <h6 class="card-title"><span class="font-weight-semibold">Customer Details</span></h6>
+            <div id="showAddMessage" class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+                <span class="font-weight-semibold">Well done!</span>{{Session::get('message')}}
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="input-group">
-                        <select  data-placeholder="Select a Customer First"  class="form-control select-search " data-fouc>
-                            <option></option>
-                          
-                            @foreach ($customerList as $customer)
-                        <option value="{{$customer['id']}}">{{$customer['value']}}</option>
-                            
-                            @endforeach
-                            
-                                
-                               
-                        </select>
-                    </div>
+      
+    @endif
 
-                </div>
 
-                <div class="col-md-6">
-                    <div class="table-responsive mb-3">
-						<table class="table table-bordered">
-                            <thead>
-                            <tr class="border-bottom-danger">
-                                <th colspan="1" class="table-active">Name</th>
-                                <th colspan="1"  class="table-active" >Address</th>
-                                <th colspan="1"  class="table-active" >Email</th>
-                            </tr>
-                        </thead>
-                            <tr>
-                                <th colspan="1" class="custName"></th>
-                                <th colspan="1"  class="custAddress" ></th>
-                                <th colspan="1"  class="custEmail" ></th>
-                            </tr>
-
-                        </table>
-                    </div>
-                </div>
-
-               
-
-                
-            </div>
- 
-            
-        </div>
-        
-        {{-- Sale Section --}}
-        <div class="card border-left-3 border-left-pink-400 border-right-3 border-right-pink-400 rounded-0 showDisplay">
-            <div class="card-header header-elements-inline">
-                <h6 class="card-title"><span class="font-weight-semibold">Car  Add Section</span></h6>
-                <h6 class="card-title"><span class="font-weight-semibold">Sale Date</span></h6>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="input-group ml-3 mb-2">
-                        <span class="input-group-prepend">
-                            <span class="input-group-text"><i class="icon-search4"></i></span>
-                        </span>
-                        <input type="text" class="form-control mr-4"  id="carSearch" placeholder="Search Car By 'Name' or 'Reg No' or 'Auction Name'">
-                    </div>
-
-                </div>
-
-                <div class="col-md-6">
-                    <div class="input-group ml-3">
-                        <span class="input-group-prepend">
-                            <span class="input-group-text"><i class="
-                                icon-calendar52 "></i></span>
-                        </span>
-                        <input type="text" class="form-control mr-4 daterange-single "  id="saleDate" value="">
-                    </div>
-
-                </div>
-
-                
-            </div>
-            
-            <div class="card-body">
-                <div class="table-responsive table-hover table-striped table-scrollable">
-                    <table class="table salesTable">
-                        <thead>
-                            <tr class="bg-dark">
-                                <th>Car Details</th>
-                                <th>Buying</th>
-                                <th>Sale</th>
-                                <th>Del</th>
-                            </tr>
-                        </thead>
-                        <tbody class="tableBody">
+    </div>
+    <div class="card-body border-top-1">
+      <table class="table datatable-basic table-hover table-bordered" style="font-size:1rem">
+        <thead class="bg-dark">
+          <tr>
+            <th>Sl.</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Discount</th>
+            <th>Car List</th>
+            <th>Payment History</th>
+            <th>Due</th>
+            <th>Sale Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+  <!-- /DataTable of Product list -->
     
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        {{--Take Payment Section--}}
-        <div class="card border-left-3 border-left-success-400 border-right-3 border-right-success-400 rounded-0 showDisplay">
-            <div class="card-header">
-                <h6 class="card-title"><span class="font-weight-semibold">Payment Section</h6>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="input-group ml-3 mb-3">
-                        <span class="input-group-prepend">
-                            <span class="input-group-text">Take Payment</span>
-                        </span>
-                        <input type="text" class="form-control mr-4 checkForDot" id="paymentInp"  value="0"   placeholder="Enter Payment">
-                    </div>
-
-                </div>
-
-                <div class="col-md-6">
-                    <div class="input-group ml-3 mb-3">
-                        <span class="input-group-prepend">
-                            <span class="input-group-text">Disocunt</span>
-                        </span>
-                        <input type="text" class="form-control mr-4 checkForDot" id="discountInp" value="0"   placeholder="Enter Disocunt Amount">
-                    </div>
-
-                </div>
-            </div>
- 
-            
-        </div>
-    </div>
-
-    {{-- Display Section --}}
-    <div class="col-md-4 showDisplay">
-            <div class="card">
-                <div class="card-header alpha-success text-success-800 header-elements-inline justify-content-center">
-                    <h6 class="card-title "><b>Cost Estimate</b></h6>
-                    
-                </div>
-                <div class="card-body">
-                   
-                    <div class="table-responsive">
-						<table class="table">
-							<tbody style="font-size:1.2rem">
-								<tr>
-                                <th colspan="1" class="table-active">Buying Price</th>
-                                <th colspan="1"  class="table-active " ><span class="badge badge-flat badge-pill border-info text-info-600 ml-1 mb-1 showBuyingPrice">€0</span></th>
-                                </tr>
-                                <tr>
-                                    <th colspan="1" class="table-active">Sale Price</th>
-                                    <th colspan="1"  class="table-active" ><span class="badge badge-flat badge-pill border-primary text-primary-600 ml-1 mb-1 showSalePrice">€0</span>
-                                    
-                                        <span class="badge badge-flat badge-pill border-danger text-danger-600 ml-1 mb-1 showLoss">Loss</span>
-                                    
-                                    </th>
-                                </tr>
-                                <tr >
-                                    <th colspan="1" class="table-active">Discount</th>
-                                    <th colspan="1"  class="table-active" ><span class="badge badge-flat badge-pill border-dark text-dark-600 ml-1 mb-1 showDiscountAmount">€0</span><span class="badge badge-flat badge-pill border-dark text-dark-600 ml-1 mb-1 showDiscountPercent">0%</span></th>
-                                </tr>
-
-                                <tr class="table-border-double border-top-danger">
-                                    <th colspan="1" class="table-active">Total Cost</th>
-                                    <th colspan="1"  class="table-active" ><span class=" text-dark-600 ml-1 mb-1 showTotalCost">€0</span></th>
-                                </tr>
-                                <tr class="table-border-dashed ">
-                                    <th colspan="1" class="table-active">Total Payment</th>
-                                    <th colspan="1"  class="table-active" ><span class=" text-success-600 ml-1 mb-1 showTotalPayment">€0</span></th>
-                                </tr>
-
-                                <tr class="table-border-dashed ">
-                                    <th colspan="1" class="table-active">Total Due</th>
-                                    <th colspan="1"  class="table-active" ><span class="border-dark text-danger-600 ml-1 mb-1 showTotalDue">€0</span></th>
-                                </tr>
-                                
-                            
-							
-                            </tbody>
-                        </table>
-
-
-                    </div>
-                   
-                </div>
-            </div>
-
-
-            <div class="card">
-                <div class="card-header alpha-warning text-warning-800 header-elements-inline justify-content-center">
-                    <h6 class="card-title "><b>Action Button</b></h6>
-                    
-                </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table">
-                                <tbody style="font-size:1.2rem">
-                                    <tr>
-                                    <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-success btnSave"><i class="icon-stack-check mr-2"></i> Save </button></th>
-
-                                    <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Save</button>
-                                    </th>
-                                    <th colspan="1"  class="table-active text-center"><button type="button" class="btn btn-outline-danger btn-lg btnDraft"><i class="icon-bell3 mr-2"></i> Draft </button></th>
-                                    </tr>
-                                    <tr  class="table-border-double">
-                                      
-                                       
-                                        </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                    </div>
-            </div>
-
-    
-
-            
-    </div>
-<div>
-
-    </div>
-
 </div>
+</div>
+{{-- Edit Modal Form --}}
 
-{{-- Loading Modal --}}
-<div id="loadingModal" class="modal" tabindex="-1" data-keyboard="false" data-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Sending Data <i class="icon-spinner2 spinner"></i></h5>
-               
-            </div>
+@section('modal-content')
 
-            <div class="modal-body">
-               
-                    <h1>Please Wait.....</h1>
+    <div class="modal-body">
+        <span id="form_result"></span>
+<form method="post" class="form-horizontal" id="editForm">
+        
+        @csrf
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Car Name:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control" placeholder="Enter Car Name" name="car_name" value="">
+                </div>
            
             </div>
+       
+        </div>
 
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Car Price:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="number" 
+                 class="form-control" 
+                  placeholder="Enter Car Name" 
+                  name="car_price" 
+                  value=""
+                  step="0.01"
+                  min="0"
+                  
+                  />
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Reg No:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control " placeholder="Enter Car Name" name="reg_no" value="">
+
+                </div>
+                
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Auction Name:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control " placeholder="Enter Car Name" name="auction_name" value="">
+
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Auction Place:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control " placeholder="Enter Auction Place" name="auction_place" value="">
+
+
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Parking Place:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input type="text" class="form-control " placeholder="Enter Parking Place Name " name="parking_place" value="">
+
+              
+            </div>
+          
+        </div>
+       </div>
+
+        <div class="form-group row">
+            
+            <label  class="col-form-label col-lg-2">Buying Date:</label>
+                <div class="col-lg-10 input-group">
+                 
+                    <span class="input-group-prepend">
+                        <span class="input-group-text"><i class="icon-calendar22"></i></span>
+                    </span>
+                <input type="text" class="form-control daterange-single " value="" name="buying_date">
+                    <br>
+                  
+              
+                    
+                </div>
+            
+        </div>
+
+        <div class="form-group row mb-0">
+            <div class="col-lg-10 ml-lg-auto">
+                <div class="d-flex justify-content-between align-items-center">
+                    <input type="hidden" name="hidden_id" id="hidden_id" />
+                    <button type="submit" class="btn bg-primary">Edit Hire Car <i class="icon-paperplane ml-2"></i></button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+    </div>
+</form>
+
+@endsection
+
+@include('layouts.confirmModal')
 
 
 @endsection
 
 @section('extra-script')
-<script type="text/javascript" >
+<script type="text/javascript" defer>
+ let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 
-let carSearchInp = document.getElementById('carSearch'); 
-let carList  = @json($carList);
-let customerList = @json($customerList);
-let saleCarList = [];
-let selectedCustomerId = 0;
-let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-$('.showLoss').hide();
-
-let  pAlertError = (title, text)  => {
-    new PNotify({
-        title: title,
-        text: text,
-        addclass: 'bg-danger border-danger'
-    });
-}
-
-    $(".checkForDot").focusout(function() {
-        let val = $(this).val();
-        if (val == "." || val == "") {
-            $(this).val(0);
-           
-
+    // Setting datatable defaults
+    $.extend($.fn.dataTable.defaults, {
+      autoWidth: false,
+      dom: '<"datatable-header"fBl><"datatable-scroll"t><"datatable-footer"ip>',
+      language: {
+        search: '<span>Search:</span> _INPUT_',
+        searchPlaceholder: 'Type to search...',
+        lengthMenu: '<span>Show:</span> _MENU_',
+        paginate: {
+          'first': 'First',
+          'last': 'Last',
+          'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;',
+          'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;'
         }
-        calculate();
-
+      }
     });
 
-    $('.checkForDot').on('input', function() {
 
-        let value = $(this).val();
-        var id = $(this).attr('id');
-
-        value = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g,
-        '$1'); /// here replace double dot and any character
-
-        if (/\./i.test(value)) {
-
-            flt = value.indexOf(".");
-            decimal = value.substr(0, flt);
-            x = value.substr(flt, 3);
-            value = decimal + x;
-
-        }
-
-        $(this).val(value);
-        calculate();
-
-   
-
-});
-
-
-$("#carSearch").autocomplete({
-    source: function(request, response) {
-        // let searchResult = $.ui.autocomplete.filter(carList, request.term);
-        // response(searchResult.slice(0, 10));
-
-        var matcher = new RegExp( $.ui.autocomplete.escapeRegex( request.term ), "i" );
-            response( $.grep( carList, function( value ) {
-            return  matcher.test(value.reg_no) || matcher.test(value.car_price) || matcher.test(value.value) ||  matcher.test(value.auction_name);
-        }));
-    },
-    select: function(event, ui) {
-        event.preventDefault();
-        addCarInputList(ui.item);
-        $("#carSearch").val("");
-    },
-    options:{
-        html:true
-    }
-
-}); // End of searching by product name    
-
-let addCarInputList = (data)=>{
-        
-if(!checkExistInCart(data.id)){
-    insertRow(data)
-    addSaleListInCart(data)
-}else {
-    PAlertError('Error','Same Car Already Exists into The Car')
-}
-
-
-}
-
-let insertRow = (data) => {
-    let tableBody = document.getElementsByClassName('tableBody')[0];
-
-        let row = tableBody.insertRow();
-
-        let colCarName = row.insertCell(0).innerText = `${data.value}`;
-        let colBuyingPrice = row.insertCell(1).innerText = `€${new Intl.NumberFormat().format(data.car_price)}`
-
-        let inputElm = document.createElement('input');
-        inputElm.type="number";
-        inputElm.step="0.01";
-        inputElm.min="0";
-        inputElm.className = 'form-control input-sm';
-        inputElm.style.minWidth = "5rem";
-
-        let colSalePrice = row.insertCell(2).appendChild(inputElm).focus();
-        
-        let iconElm = document.createElement('i');
-        iconElm.className = 'icon-trash delBtn';
-        iconElm.style.color = 'tomato';
-        iconElm.style.cursor = 'pointer';
-
-        let colDelete = row.insertCell(3).appendChild(iconElm);
-
-        let hiddenRow = row.insertCell(4);
-        hiddenRow.style.display = 'none';
-        hiddenRow.className = 'hiddenId';
-        hiddenRow.innerText = data.id;
-
-        colDelete.addEventListener("click", e => {
-            deleteRow(e.target);
-        });
-
-        inputElm.addEventListener('keyup',e =>{
-              let carId = parseInt(e.target.parentNode.parentNode.lastChild.innerText);
-              let salePrice = Number(e.target.value);
-              if(e.key === 'Enter' || e.keyCode === 13) {
-                carSearchInp.focus();
-                $("#carSearch").val("");
-              }
-          
-              if(typeof salePrice === 'number' && salePrice>0){
-                addSalePriceInCart(salePrice,carId);
-                calculate();
-
-              }
-        })
-
-        inputElm.addEventListener('focusout',e=>{
-            let carId = parseInt(e.target.parentNode.parentNode.lastChild.innerText);
-            let salePrice = Number(e.target.value);
-            if(e.target.value === "" ){
-                e.target.value = 0;
-            }
-     
-            if(typeof salePrice === 'number'){
-              addSalePriceInCart(salePrice,carId);
-              calculate();
-
-              }
-
-        })
-
-        
-
-        
-}
-
-let deleteRow = (btn)=>{
-
-    let row = btn.parentNode.parentNode;
-    row.parentNode.removeChild(row);
-    let carId = parseInt(row.lastChild.innerText);
-    removeSaleListInCart(carId);
-}
-
-let addSaleListInCart = (data) =>{
-
-        let sale = {
-            id:data.id,
-            buyingPrice: +data.car_price,
-            salePrice:0
-        }
-     
-        saleCarList.push(sale);
-        calculate();
-    
-
-}
-
-let removeSaleListInCart = (id) => {
-   let  newList =  saleCarList.filter(car => car.id !== id);
-   saleCarList = newList;
-   calculate();
- 
-}
-let checkExistInCart = (id) => {
-
-       let exist =  saleCarList.find(car => car.id === id)
-       if(exist) return true;
-       else return false;
-}
-
-/// Customer Search
-$('.select-search').select2();
-$('.select-search').select2().on("change", function(e) {
-    var obj = $(".select-search").select2("data");
-    addCustomer(parseInt(obj[0].id))  // 0 or 1 on change
-});
-
-let addCustomer = (id) => {
-        let customer = customerList.find(customer => customer.id === id );
-        if(customer) {
-            $('.showDisplay').show();
-            selectedCustomerId = customer.id;
-            $('.custName').text(customer.value);
-            $('.custAddress').text(customer.address);
-            $('.custEmail').text(customer.email);
-        }
-}
-
-let addSalePriceInCart = (value,id) => {
-    saleCarList.map(car => {
-        
-            if(car.id === id) car.salePrice = value
-        
-    })
-}
-
-let calculate = () =>{
-
-        let totalBuyingPrice = totalSalePrice =  totalCost = totalDue =   salePrice = buyingPrice = discountPercent = 0;;
-        let discountInp = Number($('#discountInp').val());
-        let paymentInp = Number($('#paymentInp').val());
-
-        saleCarList.forEach(element => {
-            salePrice += element.salePrice;
-            buyingPrice += element.buyingPrice;
-
-        });
-        if(discountInp > 0 && salePrice>0){
-        discountPercent = (discountInp/salePrice)*100;
-
-        }
-
-        totalCost = salePrice - discountInp;
-        totalDue = totalCost - paymentInp;
-
-        (salePrice<buyingPrice)?$('.showLoss').show():$('.showLoss').hide();
-        $('.showBuyingPrice').text(`€${buyingPrice.toLocaleString()}`);
-        $('.showSalePrice').text(`€${salePrice.toLocaleString()}`);
-        $('.showDiscountAmount').text(`€${discountInp.toLocaleString()}`);
-        $('.showDiscountPercent').text(`${discountPercent.toFixed(2).toLocaleString()}%`);
-        $('.showTotalPayment').text(`€${paymentInp.toLocaleString()}`);
-        if(totalCost>=0) $('.showTotalCost').text(`€${totalCost.toLocaleString()}`);
-        $('.showTotalDue').text(`€${totalDue.toLocaleString()}`);
-       
-}
-
-
-///// Save Sale
-
-$('.btnSave').on('click',e=>{
-    let btn = (e.target.tagName === 'BUTTON') ? e.target:e.target.parentNode
-    takePayment('save',btn);
-           
-});
-
-
-let takePayment = (type='save',btn)=>{
-    let saleDate = document.getElementById('saleDate').value;
-    let paymentAmount = +document.getElementById('paymentInp').value;
-    let discountAmount = +document.getElementById('discountInp').value;
-    let rowCount = document.getElementsByClassName('salesTable')[0].tBodies[0].rows.length;
-    let salePrice = saleCarList.filter(car => car.salePrice === 0);
-
-    if(selectedCustomerId === 0 || selectedCustomerId === "" || typeof selectedCustomerId !== 'number') return pAlertError('Wrong Customer Select',"Please Select Customer First");
-
-    if(rowCount<=0) return pAlertError('Empty Sales Table',"Please Add Car");
-
-    if(salePrice.length >0){
-       let cars =  salePrice.map(price => carList.find(car => car.id === price.id).value);
-       cars.forEach(name => pAlertError(`Sale Price Can't Zero or Empty`,`Please Sale Price Add in ${name}`) );
-        return;
-    }
-
-    if(typeof paymentAmount!=='number') return pAlertError('Invalid Payment Amount','Please Check Payment Amount');
-
-    if(typeof discountAmount!=='number') return pAlertError('Invalid Discount Amount','Please Check Discount Amount');
-
-    const data  = {
-        carList:saleCarList,
-        customerId:selectedCustomerId,
-        saleDate,
-        paymentAmount,
-        discountAmount,
-        _token:CSRF_TOKEN
-    }
-
-    $.ajax({
-            url: "/car/sale/store",
+    let getCarListDataTable = $('.datatable-basic').DataTable({
+        processing: true,
+        'serverSide': true,
+        'ordering': true,
+        'order': [],
+        'ajax': {
+            url: "{{route('car.sale.showajax')}}",
             type: 'POST',
-            dataType: 'JSON',
-            data: data,
-            beforeSend: function() {
-                $('.modal-title').html(` <h5 class="modal-title">Sending Data <i class="icon-spinner2 spinner"></i></h5>`);
-                $('.modal-body').html(` <h1>Please Wait.....</h1>`);
-                btn.disabled = true;
-               $('#loadingModal').modal('toggle');
-               
+            data: {
+                _token: CSRF_TOKEN
             },
-            success: function(response) {
-              
-                if(response.success === true) {
-                    $('.modal-title').html(`<h1 class="text-success-800 ">Success</h1>`);
-                    $('.modal-body').html(`<div class="alert bg-success text-white alert-styled-left alert-dismissible">
-									<button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-									<span class="font-weight-semibold">Well done!</span> Sales Has been Added
-							    </div>`);
-
-                    setTimeout(()=>{
-                        //window.location.reload(true);
-                    },3000);
-                }else {
-                    $('#loadingModal').modal('toggle');
-                        console.log(response);
-                    if(response.errors) {
-                        let errorNo = 1;
-                        response.errors.forEach(error => {
-                            pAlertError(`Error No: ${errorNo++}`,error);
-                        })
-                    }
-                    
-                }
-
+            beforeSend: function() {
+                // $('body').loadingModal({
+                //     position: 'auto',
+                //     text: 'Please wait...',
+                //     color: 'white',
+                //     opacity: '0.8',
+                //     backgroundColor: 'rgb(33, 0, 0)',
+                //     animation: 'circle'
+                // });
             },
             error: function(xhr, error) {
-                if (xhr.readyState == 0 && xhr.status != 200) {
-                    pAlertError('Oppss Offline','Please Check Your Internet Connection');
-                    setTimeout(()=>{
-                        $('#loadingModal').modal('toggle');
-                    },2000);
-                    return;
-                }
-
-                setTimeout(()=>{
-                        $('#loadingModal').modal('toggle');
-                    },5000);
-
-            $('.modal-title').html(`<h1 class="text-danger-800 ">Internal Server Error</h1>`);
-             
-                $('.modal-body').html(`<div class="alert bg-danger text-white alert-styled-left alert-dismissible">
-									<button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-									<span class="font-weight-semibold">Oppsss!! Something Went Wrong.. Error is :\n Message: ${xhr.responseJSON.message}
-                                    Line : ${xhr.responseJSON.line} \n
-                                    File : ${xhr.responseJSON.file}
-							    </div>`);
-                
+                console.log('DataTable Get Data From Ajax Failed.');
+                console.log(xhr);
+                console.log(error);
             },
             complete: function() {
-                btn.disabled = false;
-                //$('#loadingModal').modal('hide');
-               
+                // $('body').loadingModal('hide');
+                // $('body').loadingModal('destroy');
             }
+        },
+        "columnDefs": [{
+            "targets": [0, 1, 2],
+            "orderable": false
+        }],
+        columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex' },
+                {data:'date'},
+                {data: 'customer'},
+                {data: 'discount'},
+                {data: 'car_list'},
+                {data: 'payment_history'},
+                {data: 'due'},
+                {data: 'sale_status'},
+                {data: 'action'}
+
+            ], 
+
+        buttons: {
+            dom: {
+                button: {
+                    className: 'btn btn-dark',
+
+                }
+            },
+
+            buttons: [
+
+                {
+                    extend: 'copy',
+                    messageTop: 'Top Copy'
+
+                },
+
+                {
+                    extend: 'csv',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                    }
+
+                },
+
+                {
+                    extend: 'excel',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                    }
+                },
+
+                {
+                    extend: 'pdf',
+
+                    title: 'Company name will Be Here',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+
+                    }
+
+                },
+
+                {
+                    extend: 'print',
+                    footer: true,
+                    title: '{!!config('app.name')!!}',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        stripHtml: false
+                    }
+
+
+                }
+
+            ]
+        },
     });
-    
 
-}
+        const formMessageShow = (message,type='info') => {
+            (message==="")? display = 'd-none' : display = '';
+            $('#form_result').html(`<div class="${display} alert alert-${type} alert-rounded alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+            <span class="font-weight-semibold">Message: </span>${message}</div>`);
+        }
 
+        /// Get Edit Form Modal 
 
-///// Date Range Select
-$('.daterange-single').daterangepicker({ 
+        $(document).on('click','.edit',function(){
+            let id  = $(this).attr('id');
+            $('#modalForm').modal('show');
+            $('#editForm').css('display','none');
+            formMessageShow('Getting Data From Server....');
+            let request = $.ajax({
+                url: "/car/hire/"+id+"/edit",
+                data: {
+                 id:id
+                 },
+                dataType: "json"
+                });
+            
+                request.done(function( msg ) {
+                    console.log(msg);
+                    if(msg.response === 'success'){
+                        $( "input[name*='car_name']" ).val(msg.data.car_name);
+                        $( "input[name*='reg_no']" ).val(msg.data.reg_no);
+                        $( "input[name*='car_price']" ).val(msg.data.car_price);
+                        $( "input[name*='auction_name']" ).val(msg.data.auction_name);
+                        $( "input[name*='auction_place']" ).val(msg.data.acution_place);
+                        $( "input[name*='buying_date']" ).val(msg.data.buying_date);
+                        $( "input[name*='parking_place']" ).val(msg.data.parking_place);
+                        $( "#hidden_id" ).val(msg.data.id);
+                        $('#editForm').css('display','');
+                        formMessageShow('');
+                        $('.modal-title').text('Edit Record');
+                        
+
+                    }
+
+                });
+            
+                request.fail(function( jqXHR, textStatus ) {
+                    formMessageShow(`Server Error ${textStatus}`,'danger');
+                    if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
+                });
+            
+        });
+
+        //// Submit Form 
+       $('#editForm').on('submit', function(event){
+          event.preventDefault();
+
+         let request =   $.ajax({
+                            url: "{{route('car.update')}}",
+                            method:"POST",
+                            data:$(this).serialize(),
+                            dataType:"json"
+                         });
+            
+         request.done(function( msg ) {
+            if(msg.errors){
+                let errorMsg = `<ul>`;
+                msg.errors.forEach( (error) =>{
+                    errorMsg += `<li>${error}</li>`;
+                });
+                errorMsg += `</ul>`;
+                formMessageShow(`Error: ${errorMsg}`,'danger');
+            }
+            else {
+                formMessageShow(`${msg.success}`,'success');
+                $('#editForm')[0].reset();
+                getCarListDataTable.ajax.reload(null, false);
+            }
+         });
+        
+        request.fail(function( jqXHR, textStatus ) {
+            formMessageShow(`Internal Server ${textStatus} Failed Edit  ${jqXHR} `,'danger');
+            if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
+         });
+                        
+       });
+
+       ///// Date Range Select
+        $('.daterange-single').daterangepicker({ 
                 singleDatePicker: true,
                 startDate: moment(),
                 locale: {
                 format: 'YYYY-MM-DD'
             }
         });
+
+        //// Delete Car List
+
+        $(document).on('click', '.delete', function(){
+                carId = $(this).attr('id');
+                $('#confirmModal').modal('show');
+                
+        });
+
+        $('#confirm_btn').click(function(){
+            
+            $.ajax({
+                    url: "{{route('car.delete')}}",
+                    method:"POST",
+                    data: {id:carId, _token: CSRF_TOKEN},
+                    dataType:'json',
+                    beforeSend:function(){
+                        $('#confirm_btn').prop('disabled', true);
+                        $('#confirm_btn').text('Deleting...');
+                    },
+                    success:function(data)
+                    {  
+                        $('#confirm_btn').prop('disabled', false);
+                        $('#confirmModal').modal('hide');
+                        $('#confirm_btn').text('Delete');
+                        getCarListDataTable.ajax.reload(null, false);
+                    },
+                    error:function(jqXHR, textStatus) { 
+                        $('#confirm_btn').prop('disabled', false);
+                        $('#confirm_btn').text('Delete');
+                        alert('Internal Server Error');
+                        console.log(jqXHR,textStatus);
+                        if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
+                    }
+            });
+        });
+
+
+        setTimeout(()=>{
+
+                $('#showAddMessage').hide();
+        },4000)
+
+
 
 </script>
 @endsection

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 use App\Customer;
 use App\Hire;
+use DataTables;
 use App\Sale;
 use App\SalesCar;
+use App\SalesPayment;
 use Auth;
 use DB;
 use Illuminate\Http\Request;
@@ -22,6 +24,14 @@ class SaleController extends Controller {
     }
 
     public function index() {
+        if (request()->ajax()) {
+            $sale = Sale::orderBy('id', 'desc')->get();
+            return $this->getDataTablesView($sale);
+        }
+        return view('pages.car.sale.index');
+    }
+
+    public function create() {
         $customerList = $carList = array();
         $customers = Customer::orderBy('id', 'desc')->get();
         $cars = Hire::orderBy('id', 'desc')->get();
@@ -42,7 +52,7 @@ class SaleController extends Controller {
             $list['auction_name'] = $car->auction_name;
             array_push($carList, $list);
         }
-        return view('pages.car.sale.index', ['customerList' => $customerList, 'carList' => $carList]);
+        return view('pages.car.sale.create', ['customerList' => $customerList, 'carList' => $carList]);
 
     }
 
@@ -59,6 +69,7 @@ class SaleController extends Controller {
             'customer_id' => $request->customerId,
             'sale_date' => $request->saleDate,
             'discount' => $request->discountAmount,
+            'sale_status' => ($request->type == 'save' || $request->type == 'print')? 1 : 0
         );
 
 
@@ -74,11 +85,16 @@ class SaleController extends Controller {
                 );
                 SalesCar::create($data);
             }
-               return true;
+
+            SalesPayment::create(['sale_id'=>$sale_id,'payment'=>$request->paymentAmount]);
+
+            return true;
 
         });
 
-        return response()->json(['success' => true, 'data' => $db]);
+        if($db) return response()->json(['success' => true, 'data' => $salesData]);
+        else return response()->json(['success' => false]);
+
 
         
     }
@@ -108,6 +124,72 @@ class SaleController extends Controller {
 
         $validator = Validator::make($request->all(), $rules);
         return $validator->setAttributeNames($attr);
+    }
+
+    protected function getDataTablesView($sale) {
+
+        return DataTables::of($sale)
+            ->addIndexColumn()
+            ->addColumn('action', function ($sale) {
+                $extraButton = ($sale->sale_status == 0) ? '  <a href="#" class="dropdown-item delete" id="' . $sale->id . '"><i class="icon-file-check"></i>Save Sale</a>' : '';
+                $button = '<div class="list-icons">
+            <div class="dropdown">
+                <a href="#" class="list-icons-item" data-toggle="dropdown" aria-expanded="false">
+                    <i class="icon-menu9"></i>
+                </a>
+
+                <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">'.
+                $extraButton 
+                .'
+                    <a href="#" class="dropdown-item edit" id="' . $sale->id . '"><i class="icon-pencil"></i>Edit</a>
+                    <a href="#" class="dropdown-item delete" id="' . $sale->id . '"><i class="icon-trash"></i>Delete</a>
+                </div>
+            </div>
+        </div>';
+                return $button;
+            })->setTotalRecords($sale->count())
+            ->editColumn('sale_status', function ($sale) {
+                return $sale->sale_status == 0 ? '<span class="badge badge-secondary">Draft</span>' : '<span class="badge badge-primary">Sale</span>';
+
+            })
+
+            ->editColumn('date', function ($sale) {
+                $saleInstance;
+                return date('d-M-Y', strtotime($sale->sale_date));
+            })
+            ->editColumn('car_list', function ($sale){
+                $data = '';
+                $no = 1;
+                $carList = Sale::find($sale->id)->carList;
+                foreach($carList as $car) {
+                    $data .=  '<span style="cursor:pointer" onClick="showCar()" id='.$car->id.' class="badge badge-flat border-grey text-grey-600">'.$car->car_name.'</span><br>';
+                }
+                return $data;
+            })
+            ->editColumn('customer', function ($sale) {
+                return Sale::find($sale->id)->customer->cust_name;
+            })
+
+            ->editColumn('payment_history', function ($sale) {
+                $data = '<ul class="dataList">';
+               $paymentList =  Sale::find($sale->id)->paymentList;
+               $total = 0;
+               foreach($paymentList as $payment) {
+
+                    $data .= '<li>' .$payment->payment.' </li>';
+                    $total  += $payment->payment;
+               }
+               $data .= '</ul>';
+               $data .= 'Total :'.$total;
+               return $data;
+            })
+            ->editColumn('due', function ($sale){
+
+                return 'Due';
+            })
+
+            ->rawColumns(['action','sale_status','car_list','payment_history'])
+            ->make(true);
     }
 
 }

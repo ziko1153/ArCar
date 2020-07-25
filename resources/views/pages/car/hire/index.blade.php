@@ -200,21 +200,7 @@
       }
     });
 
-    $.extend($.fn.dataTable.defaults, {
-        autoWidth: false,
-        dom: '<"datatable-header"fBl><"datatable-scroll"t><"datatable-footer"ip>',
-        language: {
-            search: '<span>Search:</span> _INPUT_',
-            searchPlaceholder: 'Type to search...',
-            lengthMenu: '<span>Show:</span> _MENU_',
-            paginate: {
-                'first': 'First',
-                'last': 'Last',
-                'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;',
-                'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;'
-            }
-        }
-    });
+
     let getCarListDataTable = $('.datatable-basic').DataTable({
         processing: true,
         'serverSide': true,
@@ -247,7 +233,7 @@
             }
         },
         "columnDefs": [{
-            "targets": [0, 1, 2],
+            "targets": [0, 7, 8], 
             "orderable": false
         }],
         columns: [

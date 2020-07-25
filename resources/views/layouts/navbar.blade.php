@@ -44,12 +44,31 @@
                 </div>
             </li>
 
-            <li class="nav-item">
-            <a href="{{route('car.sale')}}" class="navbar-nav-link {{ Request::routeIs('car.sale') ? 'active' : '' }}">
-                        <i class="icon-mirror mr-2"></i>
-                        Sales Car
-                    </a>
+            <li class="nav-item dropdown">
+                <a href="#" class="navbar-nav-link dropdown-toggle" data-toggle="dropdown">
+                    <i class="icon-mirror mr-2"></i>
+                    Sales Car
+                </a>
+
+                <div class="dropdown-menu">
+        
+                   <a href="{{route('car.sale.create')}}" class="dropdown-item  {{ Request::routeIs('car.sale.create') ? 'active' : '' }}">
+                    <i class="icon-cart5 mr-2"></i>
+                    Sales Add
+                  </a>
+           
+
+                  <a href="{{route('car.sale.show')}}" class="dropdown-item {{ Request::routeIs('car.sale.show') ? 'active' : '' }}">
+                    <i class="icon-stack mr-2"></i>
+                    Sales List
+                  </a>
+
+                  
+                
+                </div>
             </li>
+
+
 
             <li class="nav-item">
                 <a href="/customer" class="navbar-nav-link {{ Request::is('customer') ? 'active' : '' }}">

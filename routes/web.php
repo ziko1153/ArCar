@@ -37,6 +37,8 @@ Route::get('/customer/{id}/edit', 'CustomerController@edit');
 Route::post('/customer/destroy', 'CustomerController@destroy')->name('customer.delete');
 
 /// Car Sale Route Handler
-Route::get('/car/sale', 'SaleController@index')->name('car.sale');
+Route::get('/car/sale/create', 'SaleController@create')->name('car.sale.create');
+Route::get('/car/sale', 'SaleController@index')->name('car.sale.show');
 Route::post('/car/sale/store', 'SaleController@store');
+Route::post('/car/hire/ajaxDatatable', 'SaleController@index')->name('car.sale.showajax');
 Auth::routes();
