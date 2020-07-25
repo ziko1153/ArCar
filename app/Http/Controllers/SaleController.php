@@ -158,12 +158,16 @@ class SaleController extends Controller {
                 return date('d-M-Y', strtotime($sale->sale_date));
             })
             ->editColumn('car_list', function ($sale){
-                $data = '';
+                $data = '<div class="carList">';
                 $no = 1;
-                $carList = Sale::find($sale->id)->carList;
+                $total = 0;
+                $carList = $sale->carList;
                 foreach($carList as $car) {
-                    $data .=  '<span style="cursor:pointer" onClick="showCar()" id='.$car->id.' class="badge badge-flat border-grey text-grey-600">'.$car->car_name.'</span><br>';
+                    $data .=  '<span  onClick="showCar(this)" id='.$car->id.'  class="badge badge-light badge-striped badge-striped-left border-left-info">'.$car->car_name.'</span><br>';
+                    $total  += $car->car_price;
                 }
+                $totalPay = str_contains($total, '.') ? '€ ' . number_format($total, 2) : '€ ' . number_format($total);
+                $data .= '</div>Total : '.$totalPay;
                 return $data;
             })
             ->editColumn('customer', function ($sale) {
@@ -172,23 +176,32 @@ class SaleController extends Controller {
 
             ->editColumn('payment_history', function ($sale) {
                 $data = '<ul class="dataList">';
-               $paymentList =  Sale::find($sale->id)->paymentList;
+               
+               $paymentList =  $sale->paymentList;
                $total = 0;
                foreach($paymentList as $payment) {
-
-                    $data .= '<li>' .$payment->payment.' </li>';
+                $pay = str_contains($payment->payment, '.') ? '€ ' . number_format($payment->payment, 2) : '€ ' . number_format($payment->payment);
+                    $data .= '<li>' .$pay.' </li>';
                     $total  += $payment->payment;
                }
                $data .= '</ul>';
-               $data .= 'Total :'.$total;
+               $totalPay = str_contains($total, '.') ? '€ ' . number_format($total, 2) : '€ ' . number_format($total);
+               $data .= 'Total : '.$totalPay;
                return $data;
             })
-            ->editColumn('due', function ($sale){
+            ->editColumn('due', function ($row){
+               $due =  $row->carList->sum('car_price') - $row->paymentList->sum('payment');
 
-                return 'Due';
+               if($due>0) {
+                   $dueAmount = str_contains($due, '.') ? '€ ' . number_format($due, 2) : '€ ' . number_format($due);
+                   return '<span class="badge badge-danger d-block">'.$dueAmount.'</span>';
+               }
+                
+            })->editColumn('discount',function($sale){
+                return '€ '.$sale->discount;
             })
 
-            ->rawColumns(['action','sale_status','car_list','payment_history'])
+            ->rawColumns(['action','sale_status','car_list','payment_history','due'])
             ->make(true);
     }
 

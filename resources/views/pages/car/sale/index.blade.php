@@ -28,6 +28,11 @@
     color: white;
     padding: 20px;
 }
+.carList {
+    margin:5px 0;
+    border-bottom: tomato 2px solid;
+
+}
 </style>
 @section('content')
 
@@ -473,7 +478,10 @@
                 $('#showAddMessage').hide();
         },4000)
 
-
+    let showCar = (e) => {
+        console.log(parseInt(e.id));
+        
+    }
 
 </script>
 @endsection
