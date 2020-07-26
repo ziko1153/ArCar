@@ -41,5 +41,8 @@ Route::get('/car/sale/create', 'SaleController@create')->name('car.sale.create')
 Route::get('/car/sale', 'SaleController@index')->name('car.sale.show');
 Route::post('/car/sale/store', 'SaleController@store');
 Route::post('/car/sale/ajaxDatatable', 'SaleController@index')->name('car.sale.showajax');
+Route::post('/car/sale/update', 'SaleController@update')->name('car.sale.update');
+Route::get('/car/sale/edit/{id}', 'SaleController@edit');
 Route::post('/car/sale/destroy', 'SaleController@destroy')->name('car.sale.delete');
+Route::post('/car/sale/payment', 'SaleController@addPayment')->name('car.sale.payment');
 Auth::routes();

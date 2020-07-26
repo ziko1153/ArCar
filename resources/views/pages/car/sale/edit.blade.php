@@ -28,13 +28,17 @@
     }
 
 </style>
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+    <span class="font-weight-semibold">Warning!</span> Be Carefull. We you Click On Edit Button We will Delete Previous All Payments
+</div>
 <div class="row ">
     <div class="col-md-8">
         
         {{-- Customer Section --}}
         <div class="card border-left-3 border-left-success-400 border-right-3 border-right-success-400 rounded-0">
             <div class="card-header header-elements-inline ">
-                <h6 class="card-title"><span class="font-weight-semibold">Customer Add Section</span></h6>
+                <h6 class="card-title"><span class="font-weight-semibold">Customer Edit Section</span></h6>
                 <h6 class="card-title"><span class="font-weight-semibold">Customer Details</span></h6>
             </div>
             <div class="row">
@@ -86,7 +90,7 @@
         {{-- Sale Section --}}
         <div class="card border-left-3 border-left-pink-400 border-right-3 border-right-pink-400 rounded-0 showDisplay">
             <div class="card-header header-elements-inline">
-                <h6 class="card-title"><span class="font-weight-semibold">Car  Add Section</span></h6>
+                <h6 class="card-title"><span class="font-weight-semibold">Car  Edit Section</span></h6>
                 <h6 class="card-title"><span class="font-weight-semibold">Sale Date</span></h6>
             </div>
             <div class="row">
@@ -126,6 +130,7 @@
                             </tr>
                         </thead>
                         <tbody class="tableBody">
+
     
                         </tbody>
                     </table>
@@ -229,7 +234,7 @@
                             <table class="table">
                                 <tbody style="font-size:1.2rem">
                                     <tr>
-                                    <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-success btnSave"><i class="icon-stack-check mr-2"></i> Save </button></th>
+                                    <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-success btnSave btn-lg"><i class="icon-stack-check mr-2"></i> Edit </button></th>
 
                                     <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Save</button>
                                     </th>
@@ -284,6 +289,8 @@
 let carSearchInp = document.getElementById('carSearch'); 
 let carList  = @json($carList);
 let customerList = @json($customerList);
+let saleData = @json($saleData);
+let getPreviousSaleCarList = @json($saleCarList);
 let saleCarList = [];
 let selectedCustomerId = 0;
 let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
@@ -355,6 +362,8 @@ $("#carSearch").autocomplete({
 }); // End of searching by product name    
 
 let addCarInputList = (data)=>{
+   console.log(data);
+   
         
 if(!checkExistInCart(data.id)){
     insertRow(data)
@@ -380,6 +389,7 @@ let insertRow = (data) => {
         inputElm.min="0";
         inputElm.className = 'form-control input-sm';
         inputElm.style.minWidth = "5rem";
+        if(data.sale_price) inputElm.value = data.sale_price;
 
         let colSalePrice = row.insertCell(2).appendChild(inputElm).focus();
         
@@ -470,7 +480,7 @@ let checkExistInCart = (id) => {
 }
 
 /// Customer Search
-$('.select-search').val(null).trigger('change');
+$('.select-search').val(saleData[0].customer_id).trigger('change');
 $('.select-search').select2();
 $('.select-search').select2().on("change", function(e) {
     var obj = $(".select-search").select2("data");
@@ -648,6 +658,27 @@ $('.daterange-single').daterangepicker({
                 locale: {
                 format: 'YYYY-MM-DD'
             }
+        });
+
+
+/// First Time Load And Calculate
+       // calculate();
+        addCustomer(saleData[0].customer_id); 
+        getPreviousSaleCarList.forEach(car => {
+
+            console.log(car);
+            let carData = {
+                auction_name : car.auction_name,
+                id: car.car_id,
+                car_price:car.car_price,
+                sale_price:car.sale_price,
+                value: `${car.reg_no} || ${car.car_name} || ${car.auction_name}`
+ 
+            }
+
+            addCarInputList(carData);
+
+
         });
 
 </script>

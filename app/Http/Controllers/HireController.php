@@ -133,7 +133,7 @@ class HireController extends Controller {
             })
 
             ->editColumn('car_price', function ($hire) {
-                return str_contains($hire->car_price, '.') ? '€ ' . number_format($hire->car_price, 2) : '€ ' . number_format($hire->car_price);
+                return str_contains($hire->car_price, '.') ? '£ ' . number_format($hire->car_price, 2) : '£ ' . number_format($hire->car_price);
             })
 
             ->editColumn('reg_no', function ($hire) {

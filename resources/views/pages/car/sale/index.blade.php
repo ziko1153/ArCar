@@ -338,53 +338,10 @@
 
         /// Get Edit Form Modal 
 
-        $(document).on('click','.edit',function(){
-            let id  = $(this).attr('id');
-            $('#modalForm').modal('show');
-            $('#editForm').css('display','none');
-            formMessageShow('Getting Data From Server....');
-            let request = $.ajax({
-                url: "/car/hire/"+id+"/edit",
-                data: {
-                 id:id
-                 },
-                dataType: "json"
-                });
-            
-                request.done(function( msg ) {
-                    console.log(msg);
-                    if(msg.response === 'success'){
-                        $( "input[name*='car_name']" ).val(msg.data.car_name);
-                        $( "input[name*='reg_no']" ).val(msg.data.reg_no);
-                        $( "input[name*='car_price']" ).val(msg.data.car_price);
-                        $( "input[name*='auction_name']" ).val(msg.data.auction_name);
-                        $( "input[name*='auction_place']" ).val(msg.data.acution_place);
-                        $( "input[name*='buying_date']" ).val(msg.data.buying_date);
-                        $( "input[name*='parking_place']" ).val(msg.data.parking_place);
-                        $( "#hidden_id" ).val(msg.data.id);
-                        $('#editForm').css('display','');
-                        formMessageShow('');
-                        $('.modal-title').text('Edit Record');
-                        
 
-                    }
-
-                });
-            
-                request.fail(function( jqXHR, textStatus ) {
-                    formMessageShow(`Server Error ${textStatus}`,'danger');
-                    if(jqXHR.status=== 419 || jqXHR.status === 401) {
-                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
-                            setTimeout(()=>{
-                                location.reload();
-                            },5000)
-                    }
-                });
-            
-        });
 
         //// Submit Form 
-       $('#editForm').on('submit', function(event){
+       $('#paymentForm').on('submit', function(event){
           event.preventDefault();
 
          let request =   $.ajax({

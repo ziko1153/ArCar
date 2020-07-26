@@ -23,19 +23,9 @@ class SaleController extends Controller {
         $this->middleware('auth');
     }
 
-    public function index() {
-        if (request()->ajax()) {
-            $sale = Sale::orderBy('id', 'desc')->get();
-            return $this->getDataTablesView($sale);
-        }
-        return view('pages.car.sale.index');
-    }
-
-    public function create() {
-        $customerList = $carList = array();
+    protected function getCustomerList() {
+        $customerList  = array();
         $customers = Customer::orderBy('id', 'desc')->get();
-        $cars = Hire::orderBy('id', 'desc')->get();
-
         foreach ($customers as $customer) {
             $list['id'] = $customer->id;
             $list['value'] = $customer->cust_name;
@@ -43,6 +33,13 @@ class SaleController extends Controller {
             $list['address'] = $customer->cust_address;
             array_push($customerList, $list);
         }
+
+        return $customerList;
+    }
+
+    protected  function getHireCarList() {
+        $carList  = array();
+        $cars = Hire::where('sale_status','=','0')->orderBy('id', 'desc')->get();
 
         foreach ($cars as $car) {
             $list['id'] = $car->id;
@@ -52,6 +49,21 @@ class SaleController extends Controller {
             $list['auction_name'] = $car->auction_name;
             array_push($carList, $list);
         }
+        return $carList;
+    }
+
+    public function index() {
+        if (request()->ajax()) {
+            $sale = Sale::orderBy('id', 'desc')->get();
+            return $this->getDataTablesView($sale);
+        }
+        return view('pages.car.sale.index');
+    }
+
+    public function create() {
+        $customerList = $this->getCustomerList();
+        $carList = $this->getHireCarList();
+      
         return view('pages.car.sale.create', ['customerList' => $customerList, 'carList' => $carList]);
 
     }
@@ -98,6 +110,17 @@ class SaleController extends Controller {
 
 
         
+    }
+
+    public function edit($id) {
+        $customerList = $this->getCustomerList();
+        $carList = $this->getHireCarList();
+        $saleCarList = $this->getSalesCarData($id);
+        $saleData = DB::select('SELECT * FROM sales inner join sales_payments on sales.id = sales_payments.sale_id where sales.id = ? limit 1',[$id]);
+      
+        return view('pages.car.sale.edit', ['customerList' => $customerList, 'carList' => $carList,'saleCarList' => $saleCarList,'saleData'=>$saleData]);
+
+       
     }
 
     public function destroy() {
@@ -160,7 +183,10 @@ class SaleController extends Controller {
                 <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">'.
                 $extraButton 
                 .'
-                    <a href="#" class="dropdown-item edit" id="' . $sale->id . '"><i class="icon-pencil"></i>Edit</a>
+                <a href="#"  class="dropdown-item addPayment" id="' . $sale->id . '"><i class="icon-coin-pound"></i>Take Payment</a>
+
+                    <a href="sale/edit/'.$sale->id.'" target="_blank" class="dropdown-item edit" id="' . $sale->id . '"><i class="icon-pencil"></i>Edit</a>
+
                     <a href="#" class="dropdown-item delete" id="' . $sale->id . '"><i class="icon-trash"></i>Delete</a>
                 </div>
             </div>
@@ -181,7 +207,7 @@ class SaleController extends Controller {
                 $no = 1;
                 $totalBuy = 0;
                 $totalSale = 0;
-              $carList = DB::select('SELECT * from  sales_cars inner join hires on sales_cars.car_id = hires.id where sales_cars.sale_id = ?',[$sale->id]);
+              $carList = $this->getSalesCarData($sale->id);
               $sale->carList = $carList;
                 foreach($carList as $car) {
                     $data .=  '<span  onClick="showCar(this)" id='.$car->id.'  class="badge badge-light badge-striped badge-striped-left border-left-info">'.$car->car_name.'</span><br>';
@@ -189,8 +215,8 @@ class SaleController extends Controller {
                     $totalSale  += $car->sale_price;
                 }
                
-                $data .= '</div>Buy : '. $this->euroMoneyFormat($totalBuy).'<br>';
-                $data .= '</div>Sale : '.$this->euroMoneyFormat($totalSale);
+                $data .= '</div>Buy: '. $this->euroMoneyFormat($totalBuy).'<br>';
+                $data .= '</div>Sale: '.$this->euroMoneyFormat($totalSale);
                 return $data;
             })
             ->editColumn('customer', function ($sale) {
@@ -216,13 +242,13 @@ class SaleController extends Controller {
                $due =  (array_sum(array_column($row->carList, 'sale_price'))-$row->discount) - $row->paymentList->sum('payment');
 
                if($due>0) {
-                   $dueAmount = str_contains($due, '.') ? '€ ' . number_format($due, 2) : '€ ' . number_format($due);
+                   $dueAmount = str_contains($due, '.') ? '£ ' . number_format($due, 2) : '£ ' . number_format($due);
                    return '<span class="badge badge-danger d-block">'.$dueAmount.'</span>';
                }
                 
             })->editColumn('discount',function($sale){
                 
-                return '€ '.$sale->discount;
+                return '£ '.$sale->discount;
             })
 
 
@@ -232,7 +258,7 @@ class SaleController extends Controller {
 
     protected function euroMoneyFormat($value) {
 
-        $data = str_contains($value, '.') ? '€ ' . number_format($value, 2) : '€ ' . number_format($value);
+        $data = str_contains($value, '.') ? '£ ' . number_format($value, 2) : '£ ' . number_format($value);
 
         return $data;
     }
@@ -244,6 +270,10 @@ class SaleController extends Controller {
                     'sale_status' => 0 
                 ]);
 
+    }
+
+    protected function getSalesCarData($id) {
+       return DB::select('SELECT * from  sales_cars inner join hires on sales_cars.car_id = hires.id where sales_cars.sale_id = ?',[$id]);
     }
 
 }
