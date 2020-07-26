@@ -10,6 +10,11 @@
                 <h6 class="font-weight-semibold">Delete??</h6>
                 <p>Do you really want to Delete it? if so Please Click Delete Button</p>
 
+                <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+                    <span class="font-weight-semibold">Be Careful All Related Data Will Be Deleted</span>
+                </div>
+
                 
             </div>
 

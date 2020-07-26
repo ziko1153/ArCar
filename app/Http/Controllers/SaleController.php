@@ -84,6 +84,7 @@ class SaleController extends Controller {
                     'sale_price' => $request['carList'][$key]['salePrice'],
                 );
                 SalesCar::create($data);
+                Hire::where('id', $data['car_id'])->update(array('sale_status' => '1'));
             }
 
             SalesPayment::create(['sale_id'=>$sale_id,'payment'=>$request->paymentAmount]);
@@ -99,6 +100,24 @@ class SaleController extends Controller {
         
     }
 
+    public function destroy() {
+      
+      $result =   DB::transaction(function () {
+        $saleCarData = SalesCar::where('sale_id',request()->id);
+        $this->reverseSalesCarData($saleCarData->get(['car_id'])->pluck('car_id'));
+        $salePaymentData = SalesPayment::where('sale_id',request()->id)->delete();
+        $saleCarData->delete();
+        $saleData = Sale::where('id',request()->id)->delete();
+
+        return true;
+              
+         });
+
+         if($result) return response()->json(['success' => 'Deleted Successfully']);
+         else return response()->json(['error' => 'Sorry Bad Request Something Went Wrong']);
+            
+    }
+
     protected function validateSaleData($request) {
         $rules = array(
             'customerId' => 'required|exists:customers,id',
@@ -106,7 +125,7 @@ class SaleController extends Controller {
             'discountAmount' => 'numeric|min:0',
             'saleDate' => 'required|date_format:Y-m-d',
             'carList' => 'array|min:1',
-            'carList.*.id' => 'numeric|distinct|exists:hires,id',
+            'carList.*.id' => 'numeric|distinct|exists:hires,id,sale_status,0',
         );
         $attr = array(
             'customerId' => 'Customer',
@@ -160,14 +179,18 @@ class SaleController extends Controller {
             ->editColumn('car_list', function ($sale){
                 $data = '<div class="carList">';
                 $no = 1;
-                $total = 0;
-                $carList = $sale->carList;
+                $totalBuy = 0;
+                $totalSale = 0;
+              $carList = DB::select('SELECT * from  sales_cars inner join hires on sales_cars.car_id = hires.id where sales_cars.sale_id = ?',[$sale->id]);
+              $sale->carList = $carList;
                 foreach($carList as $car) {
                     $data .=  '<span  onClick="showCar(this)" id='.$car->id.'  class="badge badge-light badge-striped badge-striped-left border-left-info">'.$car->car_name.'</span><br>';
-                    $total  += $car->car_price;
+                    $totalBuy  += $car->car_price;
+                    $totalSale  += $car->sale_price;
                 }
-                $totalPay = str_contains($total, '.') ? '€ ' . number_format($total, 2) : '€ ' . number_format($total);
-                $data .= '</div>Total : '.$totalPay;
+               
+                $data .= '</div>Buy : '. $this->euroMoneyFormat($totalBuy).'<br>';
+                $data .= '</div>Sale : '.$this->euroMoneyFormat($totalSale);
                 return $data;
             })
             ->editColumn('customer', function ($sale) {
@@ -180,17 +203,17 @@ class SaleController extends Controller {
                $paymentList =  $sale->paymentList;
                $total = 0;
                foreach($paymentList as $payment) {
-                $pay = str_contains($payment->payment, '.') ? '€ ' . number_format($payment->payment, 2) : '€ ' . number_format($payment->payment);
+                $pay = $this->euroMoneyFormat($payment->payment);
                     $data .= '<li>' .$pay.' </li>';
                     $total  += $payment->payment;
                }
                $data .= '</ul>';
-               $totalPay = str_contains($total, '.') ? '€ ' . number_format($total, 2) : '€ ' . number_format($total);
+               $totalPay = $this->euroMoneyFormat($total);
                $data .= 'Total : '.$totalPay;
                return $data;
             })
             ->editColumn('due', function ($row){
-               $due =  $row->carList->sum('car_price') - $row->paymentList->sum('payment');
+               $due =  (array_sum(array_column($row->carList, 'sale_price'))-$row->discount) - $row->paymentList->sum('payment');
 
                if($due>0) {
                    $dueAmount = str_contains($due, '.') ? '€ ' . number_format($due, 2) : '€ ' . number_format($due);
@@ -198,11 +221,29 @@ class SaleController extends Controller {
                }
                 
             })->editColumn('discount',function($sale){
+                
                 return '€ '.$sale->discount;
             })
 
+
             ->rawColumns(['action','sale_status','car_list','payment_history','due'])
             ->make(true);
+    }
+
+    protected function euroMoneyFormat($value) {
+
+        $data = str_contains($value, '.') ? '€ ' . number_format($value, 2) : '€ ' . number_format($value);
+
+        return $data;
+    }
+
+    protected function reverseSalesCarData($carsId) {
+
+           return Hire::whereIn('id',$carsId)
+                ->update([
+                    'sale_status' => 0 
+                ]);
+
     }
 
 }

@@ -98,7 +98,7 @@ class HireController extends Controller {
     }
 
     public function destroy() {
-        $data = Hire::findOrFail(request()->id);
+        $data = Hire::where('id',request()->id)->where('sale_status',0);
         if ($data->delete()) {
             return response()->json(['success' => 'Deleted Successfully']);
         }
@@ -109,6 +109,7 @@ class HireController extends Controller {
         return DataTables::of($hire)
             ->addIndexColumn()
             ->addColumn('action', function ($hire) {
+                $delBtn = ($hire->sale_status==0) ? ' <a href="#" class="dropdown-item delete" id="' . $hire->id . '"><i class="icon-trash"></i>Delete</a>' : '';
                 $button = '<div class="list-icons">
             <div class="dropdown">
                 <a href="#" class="list-icons-item" data-toggle="dropdown" aria-expanded="false">
@@ -117,7 +118,7 @@ class HireController extends Controller {
 
                 <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">
                     <a href="#" class="dropdown-item edit" id="' . $hire->id . '"><i class="icon-pencil"></i>Edit</a>
-                    <a href="#" class="dropdown-item delete" id="' . $hire->id . '"><i class="icon-trash"></i>Delete</a>
+                   '.$delBtn.'
                 </div>
             </div>
         </div>';

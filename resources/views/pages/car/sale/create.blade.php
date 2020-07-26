@@ -582,7 +582,8 @@ let takePayment = (type='save',btn)=>{
                
             },
             success: function(response) {
-              
+                $('#loadingModal').modal('toggle');
+              return response;
                 if(response.success === true) {
                     $('.modal-title').html(`<h1 class="text-success-800 ">Success</h1>`);
                     $('.modal-body').html(`<div class="alert bg-success text-white alert-styled-left alert-dismissible">

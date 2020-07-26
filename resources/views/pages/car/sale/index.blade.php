@@ -56,7 +56,7 @@
     </div>
     <div class="card-body border-top-1">
       <table class="table datatable-basic table-hover table-bordered" style="font-size:1rem">
-        <thead class="bg-dark">
+        <thead class="bg-dark" >
           <tr>
             <th>Sl.</th>
             <th>Date</th>
@@ -434,7 +434,7 @@
         //// Delete Car List
 
         $(document).on('click', '.delete', function(){
-                carId = $(this).attr('id');
+                saleId = $(this).attr('id');
                 $('#confirmModal').modal('show');
                 
         });
@@ -442,9 +442,9 @@
         $('#confirm_btn').click(function(){
             
             $.ajax({
-                    url: "{{route('car.delete')}}",
+                    url: "{{route('car.sale.delete')}}",
                     method:"POST",
-                    data: {id:carId, _token: CSRF_TOKEN},
+                    data: {id:saleId, _token: CSRF_TOKEN},
                     dataType:'json',
                     beforeSend:function(){
                         $('#confirm_btn').prop('disabled', true);
@@ -460,10 +460,10 @@
                     error:function(jqXHR, textStatus) { 
                         $('#confirm_btn').prop('disabled', false);
                         $('#confirm_btn').text('Delete');
-                        alert('Internal Server Error');
+                        pAlertError('Internal Server Error');
                         console.log(jqXHR,textStatus);
                         if(jqXHR.status=== 419 || jqXHR.status === 401) {
-                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            pAlertError('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
                             setTimeout(()=>{
                                 location.reload();
                             },5000)
