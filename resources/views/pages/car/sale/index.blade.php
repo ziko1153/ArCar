@@ -82,29 +82,19 @@
 
     <div class="modal-body">
         <span id="form_result"></span>
-<form method="post" class="form-horizontal" id="editForm">
+<form method="post" class="form-horizontal" id="paymentForm">
         
         @csrf
-        <div class="form-group row">
-            <label class="col-form-label col-lg-2">Car Name:</label>
-            <div class="col-lg-10">
-                <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control" placeholder="Enter Car Name" name="car_name" value="">
-                </div>
-           
-            </div>
-       
-        </div>
 
         <div class="form-group row">
-            <label class="col-form-label col-lg-2">Car Price:</label>
+            <label class="col-form-label col-lg-2">Amount:</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
                 <input
                  type="number" 
                  class="form-control" 
-                  placeholder="Enter Car Name" 
-                  name="car_price" 
+                  placeholder="Enter Amount" 
+                  name="payment" 
                   value=""
                   step="0.01"
                   min="0"
@@ -115,62 +105,16 @@
           
         </div>
 
-        <div class="form-group row">
-            <label class="col-form-label col-lg-2">Reg No:</label>
-            <div class="col-lg-10">
-                <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Car Name" name="reg_no" value="">
-
-                </div>
-                
-            </div>
-          
-        </div>
-
-        <div class="form-group row">
-            <label class="col-form-label col-lg-2">Auction Name:</label>
-            <div class="col-lg-10">
-                <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Car Name" name="auction_name" value="">
-
-                </div>
-            </div>
-          
-        </div>
-
-        <div class="form-group row">
-            <label class="col-form-label col-lg-2">Auction Place:</label>
-            <div class="col-lg-10">
-                <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Auction Place" name="auction_place" value="">
-
-
-                </div>
-            </div>
-          
-        </div>
-
-        <div class="form-group row">
-            <label class="col-form-label col-lg-2">Parking Place:</label>
-            <div class="col-lg-10">
-                <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Parking Place Name " name="parking_place" value="">
-
-              
-            </div>
-          
-        </div>
-       </div>
 
         <div class="form-group row">
             
-            <label  class="col-form-label col-lg-2">Buying Date:</label>
+            <label  class="col-form-label col-lg-2">Payment Date:</label>
                 <div class="col-lg-10 input-group">
                  
                     <span class="input-group-prepend">
                         <span class="input-group-text"><i class="icon-calendar22"></i></span>
                     </span>
-                <input type="text" class="form-control daterange-single " value="" name="buying_date">
+                <input type="text" class="form-control daterange-single " value="" name="payment_date">
                     <br>
                   
               
@@ -182,17 +126,42 @@
         <div class="form-group row mb-0">
             <div class="col-lg-10 ml-lg-auto">
                 <div class="d-flex justify-content-between align-items-center">
-                    <input type="hidden" name="hidden_id" id="hidden_id" />
-                    <button type="submit" class="btn bg-primary">Edit Hire Car <i class="icon-paperplane ml-2"></i></button>
+                    <input type="hidden" name="sale_id" id="sale_id" />
+                    <button type="submit" class="btn bg-primary">Take Payment <i class="icon-coin-pound ml-2"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal-footer">
-        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-    </div>
+ 
 </form>
+<div class="card">
+    <div class="payment-header card-header alpha-success text-success-800 header-elements-inline justify-content-center">
+        <h6 class="card-title "><b>Previous Payment Hisotry</b></h6>
+        
+    </div>
+    <div class="card-body">
+       
+        <div class="table-responsive table-scrollable">
+            <table class="table">
+                <thead>
+                    <th>Sl.</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Delete</th>
+                </thead>
+                <tbody class="previousPaymentHistory">
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+</div>
+
 
 @endsection
 
@@ -204,7 +173,7 @@
 @section('extra-script')
 <script type="text/javascript" defer>
  let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-
+ let  saleId = 0;
     // Setting datatable defaults
     $.extend($.fn.dataTable.defaults, {
       autoWidth: false,
@@ -223,7 +192,7 @@
     });
 
 
-    let getCarListDataTable = $('.datatable-basic').DataTable({
+    let getSaleListDataTable = $('.datatable-basic').DataTable({
         processing: true,
         'serverSide': true,
         'ordering': true,
@@ -235,7 +204,7 @@
                 _token: CSRF_TOKEN
             },
             beforeSend: function() {
-                // $('body').loadingModal({
+                // $('body').modalForm({
                 //     position: 'auto',
                 //     text: 'Please wait...',
                 //     color: 'white',
@@ -250,8 +219,8 @@
                 console.log(error);
             },
             complete: function() {
-                // $('body').loadingModal('hide');
-                // $('body').loadingModal('destroy');
+                // $('body').modalForm('hide');
+                // $('body').modalForm('destroy');
             }
         },
         "columnDefs": [{
@@ -345,7 +314,7 @@
           event.preventDefault();
 
          let request =   $.ajax({
-                            url: "{{route('car.update')}}",
+                            url: "{{route('car.sale.payment')}}",
                             method:"POST",
                             data:$(this).serialize(),
                             dataType:"json"
@@ -362,8 +331,10 @@
             }
             else {
                 formMessageShow(`${msg.success}`,'success');
-                $('#editForm')[0].reset();
-                getCarListDataTable.ajax.reload(null, false);
+                $('#paymentForm')[0].reset();
+                getPaymentData(saleId);
+                getSaleListDataTable.ajax.reload(null, false);
+
             }
          });
         
@@ -412,7 +383,7 @@
                         $('#confirm_btn').prop('disabled', false);
                         $('#confirmModal').modal('hide');
                         $('#confirm_btn').text('Delete');
-                        getCarListDataTable.ajax.reload(null, false);
+                        getSaleListDataTable.ajax.reload(null, false);
                     },
                     error:function(jqXHR, textStatus) { 
                         $('#confirm_btn').prop('disabled', false);
@@ -435,10 +406,96 @@
                 $('#showAddMessage').hide();
         },4000)
 
-    let showCar = (e) => {
-        console.log(parseInt(e.id));
-        
-    }
+
+
+        $(document).on('click', '.addPayment', function(){
+            $('#modalForm').modal('toggle');
+            saleId  = $(this).attr('id');
+            $('#sale_id').val(saleId)
+
+                getPaymentData(saleId);
+        });
+
+        let getPaymentData = (saleId) => {
+            $.ajax({
+            url: "/car/sale/payment",
+            dataType: 'JSON',
+            data: {saleId,_token:CSRF_TOKEN},
+            beforeSend: function() {
+  
+               $('.modal-tilte').html('Add/Delete Payment');
+               $('.previousPaymentHistory').html('<h5 class="modal-title">Fetching Data <i class="icon-spinner2 spinner"></i></h5>');
+               
+            },
+            success: function(response) {
+
+                if(response.success === true) {
+                    $('.previousPaymentHistory').html(response.data);
+                }
+            },
+            error: function(xhr, error) {
+                if (xhr.readyState == 0 && xhr.status != 200) {
+                    pAlertError('Oppss Offline','Please Check Your Internet Connection');
+                    setTimeout(()=>{
+                        $('#modalForm').modal('toggle');
+                    },2000);
+                    return;
+                }
+
+                setTimeout(()=>{
+                        $('#modalForm').modal('toggle');
+                    },5000);
+
+            $('.payment-header').html(`<h1 class="text-danger-800 ">Internal Server Error</h1>`);
+            }
+
+            });
+        } 
+
+        let deletePayment = (id) => {
+            $.ajax({
+            url: "/car/sale/payment/destroy",
+            type:'POST',
+            dataType: 'JSON',
+            data: {paymentId:id,_token:CSRF_TOKEN},
+            beforeSend: function() {
+                $('.payment-header').html(`<h1 class="text-danger-800 ">Wait We are Deleteing...</h1>`);
+               
+            },
+            success: function(response) {
+
+                if(response.success === true) {
+                    $('.payment-header').html(`<h1 class="text-success-800 ">Deleted SuccessFully</h1>`);
+                    getSaleListDataTable.ajax.reload(null, false);
+                }
+                setTimeout(() => {
+                    $('.payment-header').html(`<h6 class="card-title "><b>Previous Payment Hisotry</b></h6>`);
+                },2000);
+            },
+            error: function(xhr, error) {
+                if (xhr.readyState == 0 && xhr.status != 200) {
+                    pAlertError('Oppss Offline','Please Check Your Internet Connection');
+                    setTimeout(()=>{
+                        $('#modalForm').modal('toggle');
+                    },2000);
+                    return;
+                }
+
+                setTimeout(()=>{
+                        $('#modalForm').modal('toggle');
+                    },5000);
+
+            $('.payment-header').html(`<h1 class="text-danger-800 ">Internal Server Error</h1>`);
+            },
+            complete:function() {
+                getPaymentData(saleId);
+            }
+
+            });
+
+        }
+
+    
 
 </script>
 @endsection

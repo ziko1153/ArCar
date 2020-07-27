@@ -22,7 +22,7 @@ class Sale extends Model {
         return $this->hasMany('App\SalesCar');
     }
     public function paymentList () {
-        return $this->hasMany('App\SalesPayment');
+        return $this->hasMany('App\SalesPayment')->orderBy('id','desc');
     }
 
 

@@ -113,10 +113,11 @@ class SaleController extends Controller {
     }
 
     public function edit($id) {
+        $sale = Sale::findOrFail($id);
         $customerList = $this->getCustomerList();
         $carList = $this->getHireCarList();
-        $saleCarList = $this->getSalesCarData($id);
-        $saleData = DB::select('SELECT * FROM sales inner join sales_payments on sales.id = sales_payments.sale_id where sales.id = ? limit 1',[$id]);
+        $saleCarList = $this->getSalesCarData($sale->id);
+        $saleData = DB::select('SELECT * FROM sales inner join sales_payments on sales.id = sales_payments.sale_id where sales.id = ? limit 1',[$sale->id]);
       
         return view('pages.car.sale.edit', ['customerList' => $customerList, 'carList' => $carList,'saleCarList' => $saleCarList,'saleData'=>$saleData]);
 
@@ -195,6 +196,56 @@ class SaleController extends Controller {
          if($result) return response()->json(['success' => 'Deleted Successfully']);
          else return response()->json(['error' => 'Sorry Bad Request Something Went Wrong']);
             
+    }
+
+    public function getPaymentList(Request $request){
+        $sale = Sale::findOrfail($request->saleId);
+        $paymentsData = '<tr>';
+        $sl = 0;
+        foreach($sale->paymentList as $payment){
+                $paymentsData .= '<tr>
+                <td>'.++$sl.'</td>
+                <td>'.date('d-M-Y',strtotime($payment->created_at)).'</td>
+                <td>'.$this->euroMoneyFormat($payment->payment).'</td>
+                <td style="color:tomato;cursor:pointer" onClick="deletePayment('.$payment->id.')"><i class="icon-trash-alt mr-3 icon-2x"></i></td>
+                
+                </tr>';
+        }
+
+        $paymentsData .= '</tr>';
+        return response()->json(['success' => true,'data'=>$paymentsData]);
+    }
+
+    public function paymentDestroy() {
+
+        $paymentId = request()->paymentId;
+        $payment = SalesPayment::findOrFail($paymentId);
+        $payment->delete();
+
+        return response()->json(['success'=>true]);
+
+    }
+
+    public function addPayment(Request $request) {
+        $rules = array(
+            'payment' => 'numeric|min:0',
+            'payment_date' => 'required|date_format:Y-m-d'
+        );
+        $error = Validator::make($request->all(), $rules);
+
+        if ($error->fails()) {
+            return response()->json(['errors' => $error->errors()->all()]);
+        }
+
+        $payment = app(SalesPayment::class);
+        $payment->timestamps = false;
+        $payment->payment = $request->payment;
+        $payment->sale_id = $request->sale_id;
+        $payment->created_at = $request->payment_date;
+        $payment->updated_at = $request->payment_date;
+        $payment->save();
+
+        return response()->json(['success'=>'SuccessFully Added Payment']);
     }
 
     protected function validateSaleData($request) {
