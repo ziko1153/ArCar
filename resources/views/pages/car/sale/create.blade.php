@@ -231,9 +231,9 @@
                                     <tr>
                                     <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-success btnSave"><i class="icon-stack-check mr-2"></i> Save </button></th>
 
-                                    <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Save</button>
+                                    {{-- <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Save</button>
                                     </th>
-                                    <th colspan="1"  class="table-active text-center"><button type="button" class="btn btn-outline-danger btn-lg btnDraft"><i class="icon-bell3 mr-2"></i> Draft </button></th>
+                                    <th colspan="1"  class="table-active text-center"><button type="button" class="btn btn-outline-danger btn-lg btnDraft"><i class="icon-bell3 mr-2"></i> Draft </button></th> --}}
                                     </tr>
                                     <tr  class="table-border-double">
                                       
@@ -582,8 +582,6 @@ let takePayment = (type='save',btn)=>{
                
             },
             success: function(response) {
-                $('#loadingModal').modal('toggle');
-              return response;
                 if(response.success === true) {
                     $('.modal-title').html(`<h1 class="text-success-800 ">Success</h1>`);
                     $('.modal-body').html(`<div class="alert bg-success text-white alert-styled-left alert-dismissible">
@@ -592,8 +590,8 @@ let takePayment = (type='save',btn)=>{
 							    </div>`);
 
                     setTimeout(()=>{
-                        //window.location.reload(true);
-                    },3000);
+                        window.location.reload(true);
+                    },2000);
                 }else {
                     $('#loadingModal').modal('toggle');
                         console.log(response);

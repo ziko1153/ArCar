@@ -234,11 +234,11 @@
                             <table class="table">
                                 <tbody style="font-size:1.2rem">
                                     <tr>
-                                    <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-success btnSave btn-lg"><i class="icon-stack-check mr-2"></i> Edit </button></th>
+                                    <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-warning btnEdit btn-lg"><i class="icon-stack-check mr-2"></i> Edit </button></th>
 
-                                    <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Save</button>
+                                    <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Edit</button>
                                     </th>
-                                    <th colspan="1"  class="table-active text-center"><button type="button" class="btn btn-outline-danger btn-lg btnDraft"><i class="icon-bell3 mr-2"></i> Draft </button></th>
+                                    {{-- <th colspan="1"  class="table-active text-center"><button type="button" class="btn btn-outline-danger btn-lg btnDraft"><i class="icon-bell3 mr-2"></i> Draft </button></th> --}}
                                     </tr>
                                     <tr  class="table-border-double">
                                       
@@ -291,6 +291,7 @@ let carList  = @json($carList);
 let customerList = @json($customerList);
 let saleData = @json($saleData);
 let getPreviousSaleCarList = @json($saleCarList);
+let oldCarList = [];
 let saleCarList = [];
 let selectedCustomerId = 0;
 let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
@@ -362,9 +363,8 @@ $("#carSearch").autocomplete({
 }); // End of searching by product name    
 
 let addCarInputList = (data)=>{
-   console.log(data);
    
-        
+   
 if(!checkExistInCart(data.id)){
     insertRow(data)
     addSaleListInCart(data)
@@ -439,7 +439,7 @@ let insertRow = (data) => {
 
         })
 
-        
+       
 
         
 }
@@ -454,11 +454,15 @@ let deleteRow = (btn)=>{
 
 let addSaleListInCart = (data) =>{
 
+  
+    
         let sale = {
             id:data.id,
             buyingPrice: +data.car_price,
-            salePrice:0
+            salePrice:   (data.sale_price) ? data.sale_price :  0
         }
+ 
+        
      
         saleCarList.push(sale);
         calculate();
@@ -539,14 +543,14 @@ let calculate = () =>{
 
 ///// Save Sale
 
-$('.btnSave').on('click',e=>{
+$('.btnEdit').on('click',e=>{
     let btn = (e.target.tagName === 'BUTTON') ? e.target:e.target.parentNode
-    takePayment('save',btn);
+    takePayment('edit',btn);
            
 });
 
 
-let takePayment = (type='save',btn)=>{
+let takePayment = (type='edit',btn)=>{
 
     let saleDate = document.getElementById('saleDate').value;
     let paymentAmount = +document.getElementById('paymentInp').value;
@@ -571,7 +575,9 @@ let takePayment = (type='save',btn)=>{
 
     const data  = {
         type,
+        id:saleData[0].sale_id,
         carList:saleCarList,
+        oldCarList,
         customerId:selectedCustomerId,
         saleDate,
         paymentAmount,
@@ -580,30 +586,29 @@ let takePayment = (type='save',btn)=>{
     }
 
     $.ajax({
-            url: "/car/sale/store",
+            url: "/car/sale/update",
             type: 'POST',
             dataType: 'JSON',
             data: data,
             beforeSend: function() {
-                $('.modal-title').html(` <h5 class="modal-title">Sending Data <i class="icon-spinner2 spinner"></i></h5>`);
+                $('.modal-title').html(` <h5 class="modal-title">Editing Data <i class="icon-spinner2 spinner"></i></h5>`);
                 $('.modal-body').html(` <h1>Please Wait.....</h1>`);
                 btn.disabled = true;
                $('#loadingModal').modal('toggle');
                
             },
             success: function(response) {
-                $('#loadingModal').modal('toggle');
-              return response;
+
                 if(response.success === true) {
-                    $('.modal-title').html(`<h1 class="text-success-800 ">Success</h1>`);
+                    $('.modal-title').html(`<h1 class="text-warning-800 ">Edited Success</h1>`);
                     $('.modal-body').html(`<div class="alert bg-success text-white alert-styled-left alert-dismissible">
 									<button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-									<span class="font-weight-semibold">Well done!</span> Sales Has been Added
+									<span class="font-weight-semibold">Well done!</span> Sales Has been Edited
 							    </div>`);
 
                     setTimeout(()=>{
-                        //window.location.reload(true);
-                    },3000);
+                        window.location.replace('/car/sale/');
+                    },2000);
                 }else {
                     $('#loadingModal').modal('toggle');
                         console.log(response);
@@ -651,10 +656,11 @@ let takePayment = (type='save',btn)=>{
 }
 
 
+//// Date Fixed For Edit Data First Time Load
+$('#saleDate').val(saleData[0].sale_date);
 ///// Date Range Select
 $('.daterange-single').daterangepicker({ 
                 singleDatePicker: true,
-                startDate: moment(),
                 locale: {
                 format: 'YYYY-MM-DD'
             }
@@ -663,10 +669,11 @@ $('.daterange-single').daterangepicker({
 
 /// First Time Load And Calculate
        // calculate();
+       $('#paymentInp').val(saleData[0].payment);
+       $('#discountInp').val(saleData[0].discount);
+
         addCustomer(saleData[0].customer_id); 
         getPreviousSaleCarList.forEach(car => {
-
-            console.log(car);
             let carData = {
                 auction_name : car.auction_name,
                 id: car.car_id,
@@ -675,6 +682,11 @@ $('.daterange-single').daterangepicker({
                 value: `${car.reg_no} || ${car.car_name} || ${car.auction_name}`
  
             }
+            oldCarList.push({
+                id: car.car_id,
+                buyingPrice:car.car_price,
+                salePrice:car.sale_price
+            })
 
             addCarInputList(carData);
 

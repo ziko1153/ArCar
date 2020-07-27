@@ -16,7 +16,7 @@ class Sale extends Model {
         return $this->belongsTo(Customer::class);
     }
     public function carList() {
-        return $this->hasManyThrough('App\SalesCar','App\Hire','sale_id','id','car_id','id'); //// PRoblem 
+        return $this->hasManyThrough('App\SalesCar','App\Sale','sale_id','id','id','id'); //// PRoblem 
     }
     public function saleList() {
         return $this->hasMany('App\SalesCar');

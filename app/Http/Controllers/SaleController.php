@@ -122,6 +122,62 @@ class SaleController extends Controller {
 
        
     }
+    public function update(Request $request) {
+
+        $db =   DB::transaction(function() use($request) {
+            //$error = $this->validateSaleData($request);
+
+            /// First Reverse Old Sales Car Sale Status = 0
+                 $carData =  array_map(function($data) {return $data['id'];}, $request['oldCarList']);
+                 $this->reverseSalesCarData($carData);
+
+              
+            //// Secondly Check Validation For Edit Sales Data
+                $error = $this->validateSaleData($request);
+
+
+                if ($error->fails()) {
+                    DB::rollback();
+                    return array('errors' => $error->errors()->all());
+                }
+
+            /// Thirdly Delete All Sales Data
+
+                $sales =  $this->deleteAllSalesData($request['id']);
+            /// Forthly Insert New Sales Car data and Payment
+                foreach ($request['carList'] as $key => $value) {
+
+                    $data = array(
+                        'sale_id' => $sales->id,
+                        'car_id' => $request['carList'][$key]['id'],
+                        'sale_price' => $request['carList'][$key]['salePrice'],
+                    );
+                    SalesCar::create($data);
+                    Hire::where('id', $data['car_id'])->update(array('sale_status' => '1'));
+                }
+    
+                SalesPayment::create(['sale_id'=>$sales->id,'payment'=>$request->paymentAmount]);
+
+                /// Fiflty Update Sales table data
+
+
+       $salesData = array(
+            'user_id' => Auth::id(),
+            'customer_id' => $request->customerId,
+            'sale_date' => $request->saleDate,
+            'discount' => $request->discountAmount,
+            'sale_status' => 2
+        );
+ 
+        Sale::whereId($request->id)->update($salesData);
+
+        return array('success' => true);
+
+        });
+       
+            
+        return response()->json($db);
+    }
 
     public function destroy() {
       
@@ -180,9 +236,7 @@ class SaleController extends Controller {
                     <i class="icon-menu9"></i>
                 </a>
 
-                <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">'.
-                $extraButton 
-                .'
+                <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">
                 <a href="#"  class="dropdown-item addPayment" id="' . $sale->id . '"><i class="icon-coin-pound"></i>Take Payment</a>
 
                     <a href="sale/edit/'.$sale->id.'" target="_blank" class="dropdown-item edit" id="' . $sale->id . '"><i class="icon-pencil"></i>Edit</a>
@@ -194,7 +248,9 @@ class SaleController extends Controller {
                 return $button;
             })->setTotalRecords($sale->count())
             ->editColumn('sale_status', function ($sale) {
-                return $sale->sale_status == 0 ? '<span class="badge badge-secondary">Draft</span>' : '<span class="badge badge-primary">Sale</span>';
+                $edited = ($sale->sale_status == 2) ?  '<span class="badge badge-flat border-warning text-warning-600 ml-2">Edited</span>' : '';
+
+                return $sale->sale_status == 0 ? '<span class="badge badge-secondary">Draft</span>' : '<span class="badge badge-primary">Sale</span>'.$edited;
 
             })
 
@@ -229,6 +285,7 @@ class SaleController extends Controller {
                $paymentList =  $sale->paymentList;
                $total = 0;
                foreach($paymentList as $payment) {
+                   
                 $pay = $this->euroMoneyFormat($payment->payment);
                     $data .= '<li>' .$pay.' </li>';
                     $total  += $payment->payment;
@@ -273,7 +330,19 @@ class SaleController extends Controller {
     }
 
     protected function getSalesCarData($id) {
-       return DB::select('SELECT * from  sales_cars inner join hires on sales_cars.car_id = hires.id where sales_cars.sale_id = ?',[$id]);
+       return DB::select('SELECT * from  sales_cars inner join hires on sales_cars.car_id = hires.id where sales_cars.sale_id = ? order by sales_cars.id desc',[$id]);
     }
+
+    protected function deleteAllSalesData($id) {
+
+            $sale = Sale::findOrfail($id);
+
+             $sale->paymentList()->delete();
+             $sale->saleList()->delete();
+
+             return $sale;
+
+    }
+   
 
 }
