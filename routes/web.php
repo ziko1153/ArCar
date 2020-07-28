@@ -47,4 +47,9 @@ Route::post('/car/sale/destroy', 'SaleController@destroy')->name('car.sale.delet
 Route::get('/car/sale/payment', 'SaleController@getPaymentList');
 Route::post('/car/sale/payment/destroy', 'SaleController@paymentDestroy');
 Route::post('/car/sale/payment', 'SaleController@addPayment')->name('car.sale.payment');
+
+
+Route::get('/report','ReportController@index');
+Route::post('/report/ajax','ReportController@getReport');
+//// Authenticate Route
 Auth::routes();

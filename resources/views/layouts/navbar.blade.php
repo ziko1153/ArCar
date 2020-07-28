@@ -13,12 +13,12 @@
         <div class="navbar-collapse collapse" id="navbar-navigation">
             <h2 style="margin-right:10%"> AR Car Hire & Sale CMS </h2>
             <ul class="navbar-nav">
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a href="/" class="navbar-nav-link {{ Request::is('/') ? 'active' : '' }}">
                         <i class="icon-home4 mr-2"></i>
                         Dashboard
                     </a>
-            </li>
+            </li> --}}
 
             <li class="nav-item dropdown">
                 <a href="#" class="navbar-nav-link dropdown-toggle" data-toggle="dropdown">
@@ -77,19 +77,13 @@
                         </a>
                 </li>
 
-            <li class="nav-item dropdown">
-                <a href="#" class="navbar-nav-link dropdown-toggle" data-toggle="dropdown">
-                    <i class="icon-strategy mr-2"></i>
-                    Report Section
-                </a>
-
-                <div class="dropdown-menu">
-                   <a class="dropdown-item" href="#" ><i class="icon-car"></i>Hire Report</a>
-                   <div class="dropdown-item"> <i class="icon-users4"></i>Sale Report  </div>
-                
-                </div>
-            </li>
-
+                <li class="nav-item">
+                    <a href="/report" class="navbar-nav-link {{ Request::is('report') ? 'active' : '' }}">
+                                <i class="icon-strategy mr-2"></i>
+                               Report
+                            </a>
+                </li>
+           
 
             </ul>
 

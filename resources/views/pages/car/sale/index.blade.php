@@ -127,7 +127,7 @@
             <div class="col-lg-10 ml-lg-auto">
                 <div class="d-flex justify-content-between align-items-center">
                     <input type="hidden" name="sale_id" id="sale_id" />
-                    <button type="submit" class="btn bg-primary">Take Payment <i class="icon-coin-pound ml-2"></i></button>
+                    <button type="submit" class="btn bg-primary"> <i class="icon-coin-pound ml-2"></i> Take Payment</button>
                 </div>
             </div>
         </div>
@@ -409,11 +409,12 @@
 
 
         $(document).on('click', '.addPayment', function(){
+            $('.modal-title').html('Add/Delete Payment');
             $('#modalForm').modal('toggle');
             saleId  = $(this).attr('id');
             $('#sale_id').val(saleId)
 
-                getPaymentData(saleId);
+               getPaymentData(saleId);
         });
 
         let getPaymentData = (saleId) => {
@@ -423,8 +424,8 @@
             data: {saleId,_token:CSRF_TOKEN},
             beforeSend: function() {
   
-               $('.modal-tilte').html('Add/Delete Payment');
-               $('.previousPaymentHistory').html('<h5 class="modal-title">Fetching Data <i class="icon-spinner2 spinner"></i></h5>');
+        
+               $('.previousPaymentHistory').html('<h5>Fetching Data <i class="icon-spinner2 spinner"></i></h5>');
                
             },
             success: function(response) {
