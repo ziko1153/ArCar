@@ -290,7 +290,7 @@ class SaleController extends Controller {
                 <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">
                 <a href="#"  class="dropdown-item addPayment" id="' . $sale->id . '"><i class="icon-coin-pound"></i>Take Payment</a>
 
-                    <a href="sale/edit/'.$sale->id.'" target="_blank" class="dropdown-item edit" id="' . $sale->id . '"><i class="icon-pencil"></i>Edit</a>
+                    <a href="'.url('car/sale/edit').'/'.$sale->id.'" target="_blank" class="dropdown-item edit" id="' . $sale->id . '"><i class="icon-pencil"></i>Edit</a>
 
                     <a href="#" class="dropdown-item delete" id="' . $sale->id . '"><i class="icon-trash"></i>Delete</a>
                 </div>

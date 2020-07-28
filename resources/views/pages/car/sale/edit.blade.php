@@ -236,8 +236,8 @@
                                     <tr>
                                     <th colspan="1" class="table-active"><button type="button" class="btn btn-outline-warning btnEdit btn-lg"><i class="icon-stack-check mr-2"></i> Edit </button></th>
 
-                                    <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Edit</button>
-                                    </th>
+                                    {{-- <th colspan="1"  class="table-active" ><button type="button" class="btn btn-outline-primary"><i class="icon-printer2  mr-2 btnPrint"></i>Print & Edit</button>
+                                    </th> --}}
                                     {{-- <th colspan="1"  class="table-active text-center"><button type="button" class="btn btn-outline-danger btn-lg btnDraft"><i class="icon-bell3 mr-2"></i> Draft </button></th> --}}
                                     </tr>
                                     <tr  class="table-border-double">

@@ -43,7 +43,7 @@
                      type="number" 
                      class="form-control
                       @error('car_price') border-danger @enderror " 
-                      placeholder="Enter Car Name" 
+                      placeholder="Enter Car Price" 
                       name="car_price" 
                       value="{{old('car_price')}}"
                       step="0.01"
@@ -69,7 +69,7 @@
                 <label class="col-form-label col-lg-2">Reg No:</label>
                 <div class="col-lg-10">
                     <div class="form-group-feedback form-group-feedback-right">
-                    <input type="text" class="form-control @error('reg_no') border-danger @enderror " placeholder="Enter Car Name" name="reg_no" value="{{old('reg_no')}}">
+                    <input type="text" class="form-control @error('reg_no') border-danger @enderror " placeholder="Enter Reg No" name="reg_no" value="{{old('reg_no')}}">
 
                     @error('reg_no')
                     <div class="form-control-feedback text-danger">
@@ -89,7 +89,7 @@
                 <label class="col-form-label col-lg-2">Auction Name:</label>
                 <div class="col-lg-10">
                     <div class="form-group-feedback form-group-feedback-right">
-                    <input type="text" class="form-control @error('auction_name') border-danger @enderror " placeholder="Enter Car Name" name="auction_name" value="{{old('auction_name')}}">
+                    <input type="text" class="form-control @error('auction_name') border-danger @enderror " placeholder="Enter Auction Name" name="auction_name" value="{{old('auction_name')}}">
 
                     @error('auction_name')
                     <div class="form-control-feedback text-danger">

@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-Route::get('/', 'DashboardController@index');
+Route::get('/',  function () {
+
+    return redirect('/report');
+});
 Route::get('logout', function () {
 
     return redirect('login');
@@ -52,4 +55,6 @@ Route::post('/car/sale/payment', 'SaleController@addPayment')->name('car.sale.pa
 Route::get('/report','ReportController@index');
 Route::post('/report/ajax','ReportController@getReport');
 //// Authenticate Route
-Auth::routes();
+Auth::routes([
+    'register' => true
+]);
