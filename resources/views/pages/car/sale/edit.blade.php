@@ -285,7 +285,7 @@
 
 @section('extra-script')
 <script type="text/javascript" >
-
+ $('.showDisplay').show();
 let carSearchInp = document.getElementById('carSearch'); 
 let carList  = @json($carList);
 let customerList = @json($customerList);
@@ -293,7 +293,7 @@ let saleData = @json($saleData);
 let getPreviousSaleCarList = @json($saleCarList);
 let oldCarList = [];
 let saleCarList = [];
-let selectedCustomerId = 0;
+let selectedCustomerId = +saleData[0].customer_id;
 let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 $('.showLoss').hide();
 
@@ -676,16 +676,16 @@ $('.daterange-single').daterangepicker({
         getPreviousSaleCarList.forEach(car => {
             let carData = {
                 auction_name : car.auction_name,
-                id: car.car_id,
-                car_price:car.car_price,
-                sale_price:car.sale_price,
+                id: +car.car_id,
+                car_price:+car.car_price,
+                sale_price:+car.sale_price,
                 value: `${car.reg_no} || ${car.car_name} || ${car.auction_name}`
  
             }
             oldCarList.push({
-                id: car.car_id,
-                buyingPrice:car.car_price,
-                salePrice:car.sale_price
+                id: +car.car_id,
+                buyingPrice:+car.car_price,
+                salePrice:+car.sale_price
             })
 
             addCarInputList(carData);
