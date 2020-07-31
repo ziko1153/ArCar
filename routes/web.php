@@ -22,7 +22,7 @@ Route::get('logout', function () {
     return redirect('login');
 });
 
-//// Car Hire Route Handler
+//// Car Hire/Buying Route Handler
 Route::get('/car/hire', 'HireController@index')->name('car.show');
 Route::post('/car/hire/ajax', 'HireController@index')->name('car.showajax');
 Route::get('/car/hire/create', 'HireController@create')->name('car.create')->middleware('auth');
@@ -50,6 +50,15 @@ Route::post('/car/sale/destroy', 'SaleController@destroy')->name('car.sale.delet
 Route::get('/car/sale/payment', 'SaleController@getPaymentList');
 Route::post('/car/sale/payment/destroy', 'SaleController@paymentDestroy');
 Route::post('/car/sale/payment', 'SaleController@addPayment')->name('car.sale.payment');
+
+///// Persoanl Car Hire Handler
+Route::get('personal/car/hire', 'HireController@index')->name('personal.car.show');
+Route::post('personal/car/hire/ajax', 'HireController@index')->name('personal.car.showajax');
+Route::get('personal/car/hire/create', 'HireController@create')->name('personal.car.create')->middleware('auth');
+Route::post('personal/car/hire', 'HireController@store');
+Route::post('personal/car/update', 'HireController@update')->name('personal.car.update');
+Route::post('personal/car/destroy', 'HireController@destroy')->name('personal.car.delete');
+Route::get('personal/car/hire/{id}/edit', 'HireController@edit')->name('personal.car.edit');
 
 
 Route::get('/report','ReportController@index');

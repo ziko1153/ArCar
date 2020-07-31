@@ -10,7 +10,7 @@
 
 
 @endsection
-    
+
 
 @section('content')
 
@@ -20,7 +20,7 @@
       <!-- DataTable of Product list -->
   <div class="card">
     <div class="card-header header-elements-inline ">
-      <h5 class="card-title font-weight-bold text-uppercase">Car Hire List</h5>
+      <h5 class="card-title font-weight-bold text-uppercase">Car Buying List</h5>
       @if(Session::has('message'))
         
             <div id="showAddMessage" class="alert alert-success alert-styled-left alert-arrow-left alert-dismissible">
@@ -43,6 +43,8 @@
             <th>Auction</th>
             <th>Parking Place</th>
             <th>Buying Date</th>
+            <th>Delivery</th>
+            <th>Comment</th>
             <th>Sale Status</th>
             <th>Action</th>
           </tr>
@@ -59,7 +61,7 @@
 @section('modal-content')
 
     <div class="modal-body">
-        <span id="form_result"></span>
+        <span class="form_result"></span>
 <form method="post" class="form-horizontal" id="editForm">
         
         @csrf
@@ -79,10 +81,11 @@
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
                 <input
-                 type="number" 
-                 class="form-control" 
-                  placeholder="Enter Car Name" 
+                 type="text" 
+                 class="form-control checkForDot" 
+                  placeholder="Enter Car Price" 
                   name="car_price" 
+                  id="car_price" 
                   value=""
                   step="0.01"
                   min="0"
@@ -94,10 +97,104 @@
         </div>
 
         <div class="form-group row">
+            <label class="col-form-label col-lg-2">Auction Fee:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="text" 
+                 class="form-control checkForDot" 
+                  placeholder="Enter Auction Fee" 
+                  name="auction_fee" 
+                  value=""
+                  step="0.01"
+                  min="0"
+                  id="auction_fee"
+                  
+                  />
+
+                </div>
+
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Storage Fee:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="text" 
+                 class="form-control checkForDot" 
+                  placeholder="Enter Storage Fee" 
+                  name="storage_fee" 
+                  value=""
+                  step="0.01"
+                  min="0"
+                  id="storage_fee"
+                  
+                  />
+
+                </div>
+
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Transport Fee:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="text" 
+                 class="form-control checkForDot" 
+                  placeholder="Enter Transport Fee" 
+                  name="transport_fee" 
+                  value=""
+                  step="0.01"
+                  min="0"
+                  id="transport_fee"
+                  
+                  />
+
+                </div>
+
+            </div>
+          
+        </div>
+
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Expense Fee:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="text" 
+                 class="form-control checkForDot" 
+                  placeholder="Enter Expense Fee" 
+                  name="expense_fee" 
+                  value=""
+                  step="0.01"
+                  min="0"
+                  id="expense_fee"
+                  
+                  />
+
+                </div>
+
+            </div>
+          
+        </div>
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Total Buying Price</label>
+        <div class="col-lg-10 text-center" style="font-size:2rem">
+                <span id="total_buying_price">£ 0</span>
+            </div>
+        </div>
+
+        <div class="form-group row">
             <label class="col-form-label col-lg-2">Reg No:</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Car Name" name="reg_no" value="">
+                <input type="text" class="form-control " placeholder="Enter Reg No." name="reg_no" value="">
 
                 </div>
                 
@@ -109,7 +206,7 @@
             <label class="col-form-label col-lg-2">Auction Name:</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control " placeholder="Enter Car Name" name="auction_name" value="">
+                <input type="text" class="form-control " placeholder="Enter Auction Name" name="auction_name" value="">
 
                 </div>
             </div>
@@ -140,6 +237,34 @@
         </div>
        </div>
 
+       <div class="form-group row">
+        <label class="col-lg-3 col-form-label">Delivery Status:</label>
+        <div class="col-lg-9">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="delivery" id="inlineRadio1" value="yes">
+                <label class="form-check-label mt-1" for="inlineRadio1">Yes</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="delivery" id="inlineRadio2" value="no">
+                <label class="form-check-label mt-1"  for="inlineRadio2">No</label>
+              </div>
+        </div>
+    </div>
+
+      
+    <div class="form-group row">
+        <label class="col-form-label col-lg-2">Comment:</label>
+        <div class="col-lg-10">
+            <div class="form-group-feedback form-group-feedback-right">
+            <input type="text" class="form-control " placeholder="Enter Some Comments " name="comment" value="">
+
+          
+        </div>
+      
+     </div>
+    </div>
+
+
         <div class="form-group row">
             
             <label  class="col-form-label col-lg-2">Buying Date:</label>
@@ -161,9 +286,12 @@
             <div class="col-lg-10 ml-lg-auto">
                 <div class="d-flex justify-content-between align-items-center">
                     <input type="hidden" name="hidden_id" id="hidden_id" />
-                    <button type="submit" class="btn bg-primary">Edit Hire Car <i class="icon-paperplane ml-2"></i></button>
+                    <button type="submit" class="btn bg-primary">Edit Buying Car <i class="icon-paperplane ml-2"></i></button>
                 </div>
             </div>
+        </div>
+        <div class="form-group row mt-2">
+            <span class="form_result"></span>
         </div>
     </div>
 
@@ -182,6 +310,49 @@
 @section('extra-script')
 <script type="text/javascript" defer>
  let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+ let calculate = () => {
+           let car_price =  +$('#car_price').val();
+           let auction_fee = +$('#auction_fee').val();
+           let storage_fee =  +$('#storage_fee').val();
+           let transport_fee = +$('#transport_fee').val();
+           let expense_fee =  +$('#expense_fee').val();
+
+          let total =  (car_price+storage_fee+transport_fee+expense_fee+auction_fee).toFixed(2);
+        $('#total_buying_price').html(`£ ${total}`);
+    }
+ $(".checkForDot").focusout(function() {
+        let val = $(this).val();
+        if (val == "." || val == "") {
+            $(this).val(0);
+           
+
+        }
+        calculate();
+
+    });
+
+$('.checkForDot').on('input', function() {
+
+        let value = $(this).val();
+        var id = $(this).attr('id');
+
+        value = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g,
+        '$1'); /// here replace double dot and any character
+
+        if (/\./i.test(value)) {
+
+            flt = value.indexOf(".");
+            decimal = value.substr(0, flt);
+            x = value.substr(flt, 3);
+            value = decimal + x;
+
+        }
+
+        $(this).val(value);
+        calculate();
+
+});
+
 
     // Setting datatable defaults
     $.extend($.fn.dataTable.defaults, {
@@ -244,6 +415,8 @@
                 {data: 'auction_name'},
                 {data: 'parking_place'},
                 {data: 'buying_date'},
+                {data: 'delivery'},
+                {data: 'comment'},
                 {data: 'sale_status'},
                 {data: 'action'}
 
@@ -308,7 +481,7 @@
 
         const formMessageShow = (message,type='info') => {
             (message==="")? display = 'd-none' : display = '';
-            $('#form_result').html(`<div class="${display} alert alert-${type} alert-rounded alert-dismissible">
+            $('.form_result').html(`<div class="${display} alert alert-${type} alert-rounded alert-dismissible">
             <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
             <span class="font-weight-semibold">Message: </span>${message}</div>`);
         }
@@ -334,11 +507,23 @@
                         $( "input[name*='car_name']" ).val(msg.data.car_name);
                         $( "input[name*='reg_no']" ).val(msg.data.reg_no);
                         $( "input[name*='car_price']" ).val(msg.data.car_price);
+                        $( "input[name*='auction_fee']" ).val(msg.data.auction_fee);
+                        $( "input[name*='storage_fee']" ).val(msg.data.storage_fee);
+                        $( "input[name*='transport_fee']" ).val(msg.data.transport_fee);
+                        $('#total_buying_price').html(`£ ${msg.data.total_car_price}`);
+                        $( "input[name*='expense_fee']" ).val(msg.data.expense_fee);
                         $( "input[name*='auction_name']" ).val(msg.data.auction_name);
                         $( "input[name*='auction_place']" ).val(msg.data.acution_place);
+                        $( "input[name*='comment']" ).val(msg.data.comment);
                         $( "input[name*='buying_date']" ).val(msg.data.buying_date);
                         $( "input[name*='parking_place']" ).val(msg.data.parking_place);
                         $( "#hidden_id" ).val(msg.data.id);
+                        if(msg.data.delivery === "yes") 
+                        $("input[name=delivery][value='yes']").prop("checked",true);
+                        else if(msg.data.delivery === "no") 
+                        $("input[name=delivery][value='no']").prop("checked",true);
+
+                        calculate();
                         $('#editForm').css('display','');
                         formMessageShow('');
                         $('.modal-title').text('Edit Record');
@@ -402,6 +587,7 @@
        ///// Date Range Select
         $('.daterange-single').daterangepicker({ 
                 singleDatePicker: true,
+                drops:"up",
                 startDate: moment(),
                 locale: {
                 format: 'YYYY-MM-DD'

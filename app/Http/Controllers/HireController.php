@@ -39,16 +39,31 @@ class HireController extends Controller {
 
     public function store() {
 
+        // dd(request()->delivery);
         Hire::create(request()->validate([
             'car_name' => 'required',
-            'car_price' => 'required|numeric',
+            'car_price' => 'required|numeric|min:1',
+            'auction_fee' => 'numeric|min:0',
+            'storage_fee' => 'numeric|min:0',
+            'transport_fee' => 'numeric|min:0',
+            'expense_fee' => 'numeric|min:0',
             'reg_no' => 'required',
             'auction_name' => 'required',
             'buying_date' => 'required|date_format:Y-m-d',
             'auction_place' => '',
             'parking_place' => '',
+            'delivery' => '',
+            'comment' => '',
 
-        ]) + ['user_id' => request()->user()->id]);
+        ]) + ['user_id' => request()->user()->id,
+
+              'auction_fee' => request()->auction_fee,
+              'storage_fee' => request()->storage_fee,
+              'transport_fee' => request()->transport_fee,
+              'expense_fee' => request()->expense_fee,
+              'total_car_price' => request()->car_price+request()->auction_fee+request()->storage_fee+request()->transport_fee+request()->expense_fee
+        
+        ]);
 
         return redirect('/car/hire')->with(['message' => 'Successfully Added Car']);
 
@@ -63,10 +78,14 @@ class HireController extends Controller {
     }
 
     public function update() {
-        //error_log(request->all());
+        
         $rules = array(
             'car_name' => 'required',
-            'car_price' => 'required|numeric',
+            'car_price' => 'required|numeric|min:1',
+            'auction_fee' => 'numeric|min:0',
+            'storage_fee' => 'numeric|min:0',
+            'transport_fee' => 'numeric|min:0',
+            'expense_fee' => 'numeric|min:0',
             'reg_no' => 'required',
             'auction_name' => 'required',
             'buying_date' => 'required|date_format:Y-m-d',
@@ -80,6 +99,7 @@ class HireController extends Controller {
             return response()->json(['errors' => $error->errors()->all()]);
         }
 
+        $total_car_price = request()->car_price + request()->auction_fee + request()->storage_fee + request()->transport_fee + request()->expense_fee;
         $form_data = array(
             'car_name' => request()->car_name,
             'car_price' => request()->car_price,
@@ -88,12 +108,20 @@ class HireController extends Controller {
             'buying_date' => request()->buying_date,
             'auction_place' => request()->auction_place,
             'parking_place' => request()->parking_place,
+            'auction_fee' => request()->auction_fee,
+            'storage_fee' => request()->storage_fee,
+            'transport_fee' => request()->transport_fee,
+            'expense_fee' => request()->expense_fee,
+            'total_car_price' => $total_car_price,
+            'delivery' => request()->delivery,
+            'comment' => request()->comment,
             'user_id' => request()->user()->id,
         );
 
+
         Hire::whereId(request()->hidden_id)->update($form_data);
 
-        return response()->json(['success' => 'Data is successfully updated']);
+        return response()->json(['success' => 'Buying Car is successfully updated']);
 
     }
 
@@ -133,7 +161,15 @@ class HireController extends Controller {
             })
 
             ->editColumn('car_price', function ($hire) {
-                return str_contains($hire->car_price, '.') ? '£ ' . number_format($hire->car_price, 2) : '£ ' . number_format($hire->car_price);
+                $list = '';
+
+                $list .= 'Car Price :'.$this->euroMoneyFormat($hire->car_price)."</br>";
+                $list .= 'Auction Fee :'.$this->euroMoneyFormat($hire->auction_fee)."</br>";
+                $list .= 'Storage Fee :'.$this->euroMoneyFormat($hire->storage_fee)."</br>";
+                $list .= 'Transport Fee :'.$this->euroMoneyFormat($hire->transport_fee)."</br>";
+                $list .= 'Expense Fee :'.$this->euroMoneyFormat($hire->expense_fee)."</br>";
+                $list .= 'Total :'.$this->euroMoneyFormat($hire->total_car_price);
+                return $list;
             })
 
             ->editColumn('reg_no', function ($hire) {
@@ -144,8 +180,15 @@ class HireController extends Controller {
                 return date('d-M-Y', strtotime($hire->buying_date));
             })
 
-            ->rawColumns(['reg_no', 'action', 'sale_status', 'auction_name'])
+            ->rawColumns(['reg_no', 'action', 'sale_status', 'auction_name','car_price'])
             ->make(true);
+    }
+
+    protected function euroMoneyFormat($value) {
+
+        $data = str_contains($value, '.') ? '£ ' . number_format($value, 2) : '£ ' . number_format($value);
+
+        return $data;
     }
 
 }

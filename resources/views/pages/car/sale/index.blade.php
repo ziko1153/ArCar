@@ -105,6 +105,25 @@
           
         </div>
 
+        
+        <div class="form-group row">
+            <label class="col-form-label col-lg-2">Reference:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="text" 
+                 class="form-control" 
+                  placeholder="Enter Reference" 
+                  name="reference" 
+                  value=""
+
+                  
+                  />
+                </div>
+            </div>
+          
+        </div>
+
 
         <div class="form-group row">
             
@@ -148,6 +167,7 @@
                     <th>Sl.</th>
                     <th>Date</th>
                     <th>Amount</th>
+                    <th>Reference</th>
                     <th>Delete</th>
                 </thead>
                 <tbody class="previousPaymentHistory">

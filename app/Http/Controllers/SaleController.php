@@ -45,7 +45,7 @@ class SaleController extends Controller {
             $list['id'] = $car->id;
             $list['value'] = $car->reg_no . ' || ' . $car->car_name . ' || ' . $car->auction_name;
             $list['reg_no'] = $car->reg_no;
-            $list['car_price'] = $car->car_price;
+            $list['total_car_price'] = $car->total_car_price;
             $list['auction_name'] = $car->auction_name;
             array_push($carList, $list);
         }
@@ -207,6 +207,7 @@ class SaleController extends Controller {
                 <td>'.++$sl.'</td>
                 <td>'.date('d-M-Y',strtotime($payment->created_at)).'</td>
                 <td>'.$this->euroMoneyFormat($payment->payment).'</td>
+                <td>'.$payment->reference.'</td>
                 <td style="color:tomato;cursor:pointer" onClick="deletePayment('.$payment->id.')"><i class="icon-trash-alt mr-3 icon-2x"></i></td>
                 
                 </tr>';
@@ -229,6 +230,7 @@ class SaleController extends Controller {
     public function addPayment(Request $request) {
         $rules = array(
             'payment' => 'numeric|min:0',
+            'reference' => 'nullable|min:3',
             'payment_date' => 'required|date_format:Y-m-d'
         );
         $error = Validator::make($request->all(), $rules);
@@ -240,6 +242,7 @@ class SaleController extends Controller {
         $payment = app(SalesPayment::class);
         $payment->timestamps = false;
         $payment->payment = $request->payment;
+        $payment->reference = $request->reference;
         $payment->sale_id = $request->sale_id;
         $payment->created_at = $request->payment_date;
         $payment->updated_at = $request->payment_date;
@@ -317,7 +320,7 @@ class SaleController extends Controller {
               $carList = $this->getSalesCarData($sale->id);
               $sale->carList = $carList;
                 foreach($carList as $car) {
-                    $data .=  '<span  onClick="showCar(this)" id='.$car->id.'  class="badge badge-light badge-striped badge-striped-left border-left-info">'.$car->car_name.'</span><br>';
+                    $data .=  '<span  onClick="showCar(this)" id='.$car->id.'  class="badge badge-light badge-striped badge-striped-left border-left-info">'.$car->car_name.'<span class="badge badge-flat badge-pill border-primary text-primary-600 ml-2"> Reg:'.$car->reg_no.'</span></span><br>';
                     $totalBuy  += $car->car_price;
                     $totalSale  += $car->sale_price;
                 }

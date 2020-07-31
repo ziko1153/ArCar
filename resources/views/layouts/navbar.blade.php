@@ -23,7 +23,7 @@
             <li class="nav-item dropdown">
                 <a href="#" class="navbar-nav-link dropdown-toggle" data-toggle="dropdown">
                     <i class="icon-car mr-2"></i>
-                    Car Hire
+                    Car Buy
                 </a>
 
                 <div class="dropdown-menu">
@@ -36,7 +36,7 @@
 
                   <a href="{{route('car.show')}}" class="dropdown-item {{ Request::routeIs('car.show') ? 'active' : '' }}">
                     <i class="icon-stack mr-2"></i>
-                    Hire List
+                    Buying List
                   </a>
 
                   
@@ -75,7 +75,31 @@
                             <i class="icon-users4 mr-2"></i>
                            Customer
                         </a>
-                </li>
+            </li>
+
+            <li class="nav-item dropdown">
+                <a href="#" class="navbar-nav-link dropdown-toggle" data-toggle="dropdown">
+                    <i class="icon-truck mr-2"></i>
+                   My Personal Hire
+                </a>
+
+                <div class="dropdown-menu">
+        
+                   <a href="{{route('personal.car.create')}}" class="dropdown-item  {{ Request::routeIs('personal.car.create') ? 'active' : '' }}">
+                    <i class="icon-list mr-2"></i>
+                    Hire 
+                  </a>
+           
+
+                  <a href="{{route('personal.car.show')}}" class="dropdown-item {{ Request::routeIs('personal.car.show') ? 'active' : '' }}">
+                    <i class="icon-stack mr-2"></i>
+                    Hire List
+                  </a>
+
+                  
+                
+                </div>
+            </li>
 
                 <li class="nav-item">
                     <a href="/report" class="navbar-nav-link {{ Request::is('report') ? 'active' : '' }}">

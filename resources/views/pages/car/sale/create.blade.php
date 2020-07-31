@@ -340,7 +340,7 @@ $("#carSearch").autocomplete({
 
         var matcher = new RegExp( $.ui.autocomplete.escapeRegex( request.term ), "i" );
             response( $.grep( carList, function( value ) {
-            return  matcher.test(value.reg_no) || matcher.test(value.car_price) || matcher.test(value.value) ||  matcher.test(value.auction_name);
+            return  matcher.test(value.reg_no) || matcher.test(value.total_car_price) || matcher.test(value.value) ||  matcher.test(value.auction_name);
         }));
     },
     select: function(event, ui) {
@@ -372,7 +372,7 @@ let insertRow = (data) => {
         let row = tableBody.insertRow();
 
         let colCarName = row.insertCell(0).innerText = `${data.value}`;
-        let colBuyingPrice = row.insertCell(1).innerText = `£${new Intl.NumberFormat().format(data.car_price)}`
+        let colBuyingPrice = row.insertCell(1).innerText = `£${new Intl.NumberFormat().format(data.total_car_price)}`
 
         let inputElm = document.createElement('input');
         inputElm.type="number";
@@ -446,7 +446,7 @@ let addSaleListInCart = (data) =>{
 
         let sale = {
             id:data.id,
-            buyingPrice: +data.car_price,
+            buyingPrice: +data.total_car_price,
             salePrice:0
         }
      

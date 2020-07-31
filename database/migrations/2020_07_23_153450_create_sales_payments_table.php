@@ -15,6 +15,7 @@ class CreateSalesPaymentsTable extends Migration {
             $table->id();
             $table->unsignedBigInteger('sale_id');
             $table->double('payment');
+            $table->text('reference')->nullable(true);
             $table->timestamps();
             $table->foreign('sale_id')
                 ->references('id')
