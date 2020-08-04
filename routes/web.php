@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-Route::get('/',  function () {
+Route::get('/', function () {
 
     return redirect('/report');
 });
@@ -51,19 +51,29 @@ Route::get('/car/sale/payment', 'SaleController@getPaymentList');
 Route::post('/car/sale/payment/destroy', 'SaleController@paymentDestroy');
 Route::post('/car/sale/payment', 'SaleController@addPayment')->name('car.sale.payment');
 
-///// Persoanl Car  Handler
+///// Persoanl Car `Add` Router  Handler
 
-Route::get('personal/car/', 'PersonalCarController@carAddList')->name('personal.car');
-Route::get('personal/car/hire', 'PersonalCarController@carHireList')->name('personal.car.hire');
+Route::get('personal/car/', 'PersonalCarAddController@index')->name('personal.car');
+Route::post('personal/car/ajaxDatatable', 'PersonalCarAddController@index')->name('personal.car.add.showajax');
+Route::post('personal/car/add/store', 'PersonalCarAddController@store')->name('personal.car.add.store');
+Route::post('personal/car/add/update', 'PersonalCarAddController@update')->name('personal.car.add.update');
+Route::get('/personal/car/add/{id}/edit', 'PersonalCarAddController@edit');
+Route::post('/personal/car/add/destroy', 'PersonalCarAddController@destroy')->name('personalCarDelete');
 
+///// Personal Car  `Hire` Router Handler
 
+Route::get('personal/car/hire', 'PersonalCarHireController@index')->name('personal.car.hire');
+Route::post('personal/car/hire/ajaxDatatable', 'PersonalCarHireController@index')->name('personal.car.hire.showajax');
+Route::post('personal/car/hire/hire/store', 'PersonalCarHireController@store')->name('personal.car.hire.store');
+Route::post('personal/car/hire/update', 'PersonalCarHireController@update')->name('personal.car.hire.update');
+Route::get('/personal/car/hire/{id}/edit', 'PersonalCarHireController@edit');
+Route::post('/personal/car/hire/destroy', 'PersonalCarHireController@destroy')->name('personalCarDelete');
 
-//// Report Controller 
+//// Report Controller
 
-
-Route::get('/report','ReportController@index');
-Route::post('/report/ajax','ReportController@getReport');
+Route::get('/report', 'ReportController@index');
+Route::post('/report/ajax', 'ReportController@getReport');
 //// Authenticate Route
 Auth::routes([
-    'register' => true
+    'register' => true,
 ]);

@@ -1,17 +1,36 @@
 @extends('layouts.app')
 
 @section('extra-header')
+    <script src="/global_assets/js/plugins/extensions/jquery_ui/full.min.js"></script>
+    <script src="/global_assets/js/plugins/forms/selects/select2.min.js"></script>
+    <script src="/global_assets/js/plugins/notifications/pnotify.min.js"></script>
    <!-- For Data Table -->
    <script src="/global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
    <script src="/global_assets/js/plugins/tables/datatables/extensions/jszip/jszip.min.js"></script>
    <script src="/global_assets/js/plugins/tables/datatables/extensions/pdfmake/pdfmake.min.js"></script>
    <script src="/global_assets/js/plugins/tables/datatables/extensions/pdfmake/vfs_fonts.min.js"></script>
    <script src="/global_assets/js/plugins/tables/datatables/extensions/buttons.min.js"></script>
-
+   <script src="/global_assets/js/plugins/notifications/pnotify.min.js"></script>
 
 @endsection
     
-
+<style>
+.dataList {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 9px 0;
+	border-bottom: tomato 2px solid;
+}
+.dt-button-info {
+    position: absolute;
+    top: 20vh;
+    left:50%;
+    transform: translate(-50%,-50%);
+    background:#333;
+    color: white;
+    padding: 20px;
+}
+</style>
 @section('content')
 
 <div class="row ">
@@ -20,9 +39,9 @@
       <!-- DataTable of Car list -->
   <div class="card">
     <div class="card-header header-elements-inline  ">
-      <h2 class="card-title font-weight-bold text-uppercase">Personal Car Add List</h2>
+      <h2 class="card-title font-weight-bold text-uppercase">Personal Car Hire List</h2>
  
-      <button type="button" class="btn bg-warning addCarBtn" data-toggle="modal" data-target="#modalForm">Add Car<i class="icon-play3 ml-2"></i></button>
+      <button type="button" class="btn bg-violet btn-lg addHireBtn" data-toggle="modal" data-target="#modalForm">Hire Car<i class="icon-play3 ml-2"></i></button>
 
     </div>
 
@@ -31,9 +50,13 @@
         <thead class="bg-dark">
           <tr>
             <th>Sl.</th>
-            <th>Car Name</th>
-            <th>Registration No</th>
-            <th>Hire Status</th>
+            <th>Date</th>
+            <th>Reg. No.</th>
+            <th>Customer</th>
+            <th>Hire Rate</th>
+            <th>Weeks</th>
+            <th>Payment</th>
+            <th>Due</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -54,25 +77,113 @@
         
         @csrf
         <div class="form-group row">
-            <label class="col-form-label col-lg-2">Car Name:</label>
+            <label class="col-form-label col-lg-2">Select Customer:</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
-                <input type="text" class="form-control" placeholder="Enter Car Name" name="car_name" value="">
+                    <select name="customer"  data-placeholder="Select a Customer First"  class="form-control customer-select-search"  data-fouc>
+                        <option></option>
+                      
+                        @foreach ($customerList as $customer)
+                    <option value={{$customer['id']}}>{{$customer['value']}}</option>
+                        
+                        @endforeach
+                        
+                            
+                           
+                    </select>
                 </div>
            
             </div>
+
+            
        
         </div>
 
-        <div class="form-group row">
-            <label class="col-form-label col-lg-2">Reg No:</label>
+        <div class="form-group row customerShow">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Address</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>NI</th>
+                        </tr>
+                    </thead>
+                    <tbody class="addCustomerRow">
+    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="form-group row carShowSelect">
+            <label class="col-form-label col-lg-2">Select Car:</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                    <select name="car"  data-placeholder="Select  Available Car "  class="form-control car-select-search" data-fouc>
+                        <option></option>
+                      
+                        @foreach ($carList as $car)
+                    <option value="{{$car['id']}}">{{$car['value']}}</option>
+                        
+                        @endforeach
+                        
+                            
+                           
+                    </select>
+                </div>
+           
+            </div>
+
+            
+       
+        </div>
+
+        <div class="form-group row carShow">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Car Name</th>
+                            <th>Reg No</th>
+                        </tr>
+                    </thead>
+                    <tbody class="addCarRow">
+    
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="form-group row showDisplay">
+            <label class="col-form-label col-lg-2">Hire Start Date</label>
             <div class="col-lg-10">
                 <div class="form-group-feedback form-group-feedback-right">
                 <input
                  type="text" 
-                 class="form-control" 
-                  placeholder="Enter Reg No" 
-                  name="reg_no"
+                 class="form-control daterange-single" 
+                 id="hireStartDate"
+                  placeholder="Enter Hire Start Date" 
+                  name="hire_start_date"
+                  value=""
+                  />
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="form-group row showDisplay">
+            <label class="col-form-label col-lg-2">Weekly Hire Rate</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="text" 
+                 class="form-control checkForDot" 
+                 id="hireRate"
+                  placeholder="Enter Weekly Rate" 
+                  name="hire_rate"
                   value=""
                   />
                 </div>
@@ -89,7 +200,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                  <input type="hidden" name="action" id="action" value="Add" />
                  <input type="hidden" name="hidden_id" id="hidden_id" />
-                 <input type="submit" name="action_button" id="action_button" class="btn btn-warning" value="Add Car" />
+                 <input type="submit" name="action_button" id="action_button" class="btn bg-violet btn-lg" value="Hire Car" />
                 </div>
             </div>
         </div>
@@ -110,40 +221,82 @@
 
 @section('extra-script')
 <script type="text/javascript" defer>
+
+$(".checkForDot").focusout(function() {
+        let val = $(this).val();
+        if (val == "." || val == "") {
+            $(this).val(0);
+           
+
+        }
+
+    });
+
+    $('.checkForDot').on('input', function() {
+
+        let value = $(this).val();
+        var id = $(this).attr('id');
+
+        value = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g,
+        '$1'); /// here replace double dot and any character
+
+        if (/\./i.test(value)) {
+
+            flt = value.indexOf(".");
+            decimal = value.substr(0, flt);
+            x = value.substr(flt, 3);
+            value = decimal + x;
+
+        }
+
+        $(this).val(value);
+  
+
+});
+
+$('#modalForm').attr('data-backdrop', 'static');
  let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-$('.addCarBtn').click(function(){
-  $('.modal-title').text('Add New Car');
-  $('#action_button').val('Add Car');
+
+ 
+
+ let selectedCustomerId = 0;
+ let selectedCarId = 0;
+ let customerList = @json($customerList);
+ let carList  = @json($carList);
+$('.addHireBtn').click(function(){
+    resetHireForm();
+  $('.modal-title').text('Add Hire Car');
+  $('#action_button').val('Hire Car');
   $('#action').val('Add');
   $('#form_result').html('');
   $('#sample_form')[0].reset();
 
  });
 
-    // Setting datatable defaults
-    $.extend($.fn.dataTable.defaults, {
-      autoWidth: false,
-      dom: '<"datatable-header"fBl><"datatable-scroll"t><"datatable-footer"ip>',
-      language: {
-        search: '<span>Search:</span> _INPUT_',
-        searchPlaceholder: 'Type to search...',
-        lengthMenu: '<span>Show:</span> _MENU_',
-        paginate: {
-          'first': 'First',
-          'last': 'Last',
-          'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;',
-          'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;'
-        }
-      }
-    });
 
+
+    $.extend($.fn.dataTable.defaults, {
+        autoWidth: false,
+        dom: '<"datatable-header"fBl><"datatable-scroll"t><"datatable-footer"ip>',
+        language: {
+            search: '<span>Search:</span> _INPUT_',
+            searchPlaceholder: 'Type to search...',
+            lengthMenu: '<span>Show:</span> _MENU_',
+            paginate: {
+                'first': 'First',
+                'last': 'Last',
+                'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;',
+                'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;'
+            }
+        }
+    });
     let getCarDataTable = $('.datatable-basic').DataTable({
         processing: true,
         'serverSide': true,
         'ordering': true,
         'order': [],
         'ajax': {
-            url: "{{route('personal.car.add.showajax')}}",
+            url: "{{route('personal.car.hire.showajax')}}",
             type: 'POST',
             data: {
                 _token: CSRF_TOKEN
@@ -181,9 +334,13 @@ $('.addCarBtn').click(function(){
         }],
         columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex' },
-                {data: 'car_name'},
+                {data: 'date'},
                 {data: 'reg_no'},
-                {data: 'hire_status'},
+                {data: 'customer'},
+                {data: 'hire_rate'},
+                {data: 'weeks'},
+                {data: 'payment'},
+                {data: 'due'},
                 {data: 'action'}
 
             ], 
@@ -206,7 +363,7 @@ $('.addCarBtn').click(function(){
                 {
                     extend: 'csv',
                     exportOptions: {
-                        columns: [0, 1, 2,3]
+                        columns: [0, 1, 2,3,4,5,6]
                     }
 
                 },
@@ -214,7 +371,7 @@ $('.addCarBtn').click(function(){
                 {
                     extend: 'excel',
                     exportOptions: {
-                        columns: [0, 1, 2,3]
+                        columns: [0, 1, 2,3,4,5,6]
                     }
                 },
 
@@ -223,7 +380,7 @@ $('.addCarBtn').click(function(){
 
                     title: 'Company name will Be Here',
                     exportOptions: {
-                        columns: [0, 1, 2,3]
+                        columns: [0, 1, 2,3,4,5,6]
 
                     }
 
@@ -234,7 +391,7 @@ $('.addCarBtn').click(function(){
                     footer: true,
                     title: '{!!config('app.name')!!}',
                     exportOptions: {
-                        columns: [0, 1, 2,3],
+                        columns: [0, 1, 2,3,4,5,6],
                         stripHtml: false
                     }
 
@@ -259,12 +416,12 @@ $('.addCarBtn').click(function(){
 
                 if($('#action').val() == 'Add')
                 {
-                    action_url = "{{ route('personal.car.add.store') }}";
+                    action_url = "{{ route('personal.car.hire.store') }}";
                 }
 
                 if($('#action').val() == 'Edit')
                 {
-                 action_url = "{{ route('personal.car.add.update') }}";
+                 action_url = "{{ route('personal.car.hire.update') }}";
                 }
 
 
@@ -289,6 +446,7 @@ $('.addCarBtn').click(function(){
                     {
                     html = '<div class="alert alert-success">' + data.success + '</div>';
                     $('#sample_form')[0].reset();
+                    resetHireForm();
                     getCarDataTable.ajax.reload();
                     setTimeout(()=>$('#modalForm').modal('hide'),1000);
                     }
@@ -389,6 +547,77 @@ $('.addCarBtn').click(function(){
         });
 
 
+
+
+$('.customer-select-search').select2();
+$('.customer-select-search').select2().on("change", function(e) {
+    $('.customerShow').show();
+    $('.carShowSelect').show();
+    var obj = $(".customer-select-search").select2("data");
+    addCustomer(parseInt(obj[0].id))  // 0 or 1 on change
+});
+
+
+
+$('.car-select-search').select2();
+$('.car-select-search').select2().on("change", function(e) {
+    $('.carShow').show();
+    var obj = $(".car-select-search").select2("data");
+    addCar(parseInt(obj[0].id))  // 0 or 1 on change
+});
+
+let addCustomer = (id) => {
+      
+        let customer = customerList.find(customer => customer.id === id );
+        if(customer) {
+            selectedCustomerId = customer.id;
+            
+            let row = `
+                    <tr>
+                    <td>${customer.name}</td>
+                    <td>${customer.address}</td>
+                    <td>${customer.mobile}</td>
+                    <td>${customer.email}</td>
+                    <td>${customer.ni}</td>
+                    </tr>
+            `;
+
+            $('.addCustomerRow').html(row);
+
+        }
+}
+
+let addCar = (id) => {
+    $('.showDisplay').show();
+        let car = carList.find(car => car.id === id );
+        if(car) {
+            selectedCarId = car.id;
+            
+            let row = `
+                    <tr>
+                    <td>${car.name}</td>
+                    <td>${car.reg_no}</td>
+                    </tr>
+            `;
+
+            $('.addCarRow').html(row);
+
+        }
+}
+
+
+let resetHireForm = () => {
+    $('.customer-select-search').val(null).trigger('change');
+    $('.car-select-search').val(null).trigger('change');
+    selectedCarId = 0;
+    selectedCustomerId = 0;
+    $('.showDisplay').hide();
+    $('.customerShow').hide();
+    $('.carShow').hide();
+    $('.carShowSelect').hide();
+
+
+}
 
 </script>
 @endsection

@@ -1,4 +1,4 @@
-<div id="modalForm" class="modal fade" tabindex="-1">
+<div id="modalForm" class="modal fade" >
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

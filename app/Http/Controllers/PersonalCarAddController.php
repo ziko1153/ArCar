@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Customer;
+use App\PersonalCarAdd;
 use DataTables;
 use Illuminate\Http\Request;
 use Validator;
 
-class PersonalCarController extends Controller {
+class PersonalCarAddController extends Controller {
     /**
      * Create a new controller instance.
      *
@@ -20,17 +20,8 @@ class PersonalCarController extends Controller {
     public function index() {
         if (request()->ajax()) {
             $i = 0;
-            $customer = Customer::orderBy('id', 'desc')->get();
-            return $this->getDataTablesView($customer);
-        }
-        return view('pages.personal.add.index');
-    }
-
-    public function carAddList() {
-        if (request()->ajax()) {
-            $i = 0;
-            $customer = Customer::orderBy('id', 'desc')->get();
-            return $this->getDataTablesView($customer);
+            $car = PersonalCarAdd::orderBy('id', 'desc')->get();
+            return $this->getDataTablesView($car);
         }
         return view('pages.personal.add.index');
     }
@@ -43,23 +34,21 @@ class PersonalCarController extends Controller {
      */
     public function store(Request $request) {
 
-        $error = $this->validateCustomer($request);
+        $error = $this->validateCar($request);
 
         if ($error->fails()) {
             return response()->json(['errors' => $error->errors()->all()]);
         }
 
         $form_data = array(
-            'cust_name' => $request->cust_name,
-            'cust_email' => $request->cust_email,
-            'cust_mobile' => $request->cust_mobile,
-            'cust_ni' => $request->cust_ni,
-            'cust_address' => $request->cust_address,
+            'car_name' => $request->car_name,
+            'reg_no' => $request->reg_no,
+            'hire_status' => 0,
         );
 
-        Customer::create($form_data);
+        PersonalCarAdd::create($form_data);
 
-        return response()->json(['success' => 'Customer Added successfully.']);
+        return response()->json(['success' => 'Car Added successfully.']);
 
     }
 
@@ -71,7 +60,7 @@ class PersonalCarController extends Controller {
      */
     public function edit($id) {
         if (request()->ajax()) {
-            $data = Customer::findOrFail($id);
+            $data = PersonalCarAdd::findOrFail($id);
             return response()->json(['result' => $data]);
         }
     }
@@ -85,23 +74,20 @@ class PersonalCarController extends Controller {
      */
     public function update(Request $request) {
 
-        $error = $this->validateCustomer($request);
+        $error = $this->validateCar($request);
 
         if ($error->fails()) {
             return response()->json(['errors' => $error->errors()->all()]);
         }
 
         $form_data = array(
-            'cust_name' => $request->cust_name,
-            'cust_email' => $request->cust_email,
-            'cust_mobile' => $request->cust_mobile,
-            'cust_ni' => $request->cust_ni,
-            'cust_address' => $request->cust_address,
+            'car_name' => $request->car_name,
+            'reg_no' => $request->reg_no,
         );
 
-        Customer::whereId($request->hidden_id)->update($form_data);
+        PersonalCarAdd::whereId($request->hidden_id)->update($form_data);
 
-        return response()->json(['success' => 'Customer Data is successfully updated']);
+        return response()->json(['success' => 'Car Data is successfully updated']);
 
     }
 
@@ -112,16 +98,16 @@ class PersonalCarController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy() {
-        $data = Customer::findOrFail(request()->id);
+        $data = PersonalCarAdd::findOrFail(request()->id);
         if ($data->delete()) {
             return response()->json(['success' => 'Deleted Successfully']);
         }
         return response()->json(['error' => 'Sorry Bad Request Something Went Wrong']);
     }
-    protected function getDataTablesView($customer) {
-        return DataTables::of($customer)
+    protected function getDataTablesView($car) {
+        return DataTables::of($car)
             ->addIndexColumn()
-            ->addColumn('action', function ($customer) {
+            ->addColumn('action', function ($car) {
                 $button = '<div class="list-icons">
             <div class="dropdown">
                 <a href="#" class="list-icons-item" data-toggle="dropdown" aria-expanded="false">
@@ -129,36 +115,33 @@ class PersonalCarController extends Controller {
                 </a>
 
                 <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">
-                    <a href="#" class="dropdown-item edit" id="' . $customer->id . '"><i class="icon-pencil"></i>Edit</a>
-                    <a href="#" class="dropdown-item delete" id="' . $customer->id . '"><i class="icon-trash"></i>Delete</a>
+                    <a href="#" class="dropdown-item edit" id="' . $car->id . '"><i class="icon-pencil"></i>Edit</a>
+                    <a href="#" class="dropdown-item delete" id="' . $car->id . '"><i class="icon-trash"></i>Delete</a>
                 </div>
             </div>
         </div>';
                 return $button;
-            })->setTotalRecords($customer->count())
+            })->setTotalRecords($car->count())
 
-            ->editColumn('cust_email', function ($customer) {
-                return $customer->cust_email;
+            ->editColumn('hire_status', function ($car) {
+                $status = ($car->hire_status == 0) ? '<span class="badge badge-flat border-success text-success-600">Available</span>' : '<span class="badge badge-flat badge-icon border-pink text-pink-600 rounded-circle"><i class="icon-bus"></i></span>';
+
+                return $status;
             })
 
-            ->rawColumns(['action', 'cust_email'])
+            ->rawColumns(['action', 'hire_status'])
             ->make(true);
     }
 
-    protected function validateCustomer($request) {
+    protected function validateCar($request) {
         $rules = array(
-            'cust_name' => 'required|min:3',
-            'cust_email' => 'nullable|email|unique:customers,cust_email,' . $request->hidden_id,
-            'cust_mobile' => 'nullable|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
-            'cust_ni' => 'nullable|min:9',
-            'cust_address' => 'nullable|min:3',
+            'car_name' => 'required|min:3',
+            'reg_no' => 'required|min:3',
+
         );
         $attr = array(
-            'cust_name' => 'Customer Name',
-            'cust_email' => 'Customer Email',
-            'cust_mobile' => 'Customer Mobile',
-            'cust_address' => 'Customer Address',
-            'cust_ni' => 'Customer National Insurance',
+            'cust_name' => 'Car Name',
+            'reg_no' => 'Registration No',
         );
 
         $validator = Validator::make($request->all(), $rules);
