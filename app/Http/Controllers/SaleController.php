@@ -321,7 +321,7 @@ class SaleController extends Controller {
               $sale->carList = $carList;
                 foreach($carList as $car) {
                     $data .=  '<span  onClick="showCar(this)" id='.$car->id.'  class="badge badge-light badge-striped badge-striped-left border-left-info">'.$car->car_name.'<span class="badge badge-flat badge-pill border-primary text-primary-600 ml-2"> Reg:'.$car->reg_no.'</span></span><br>';
-                    $totalBuy  += $car->car_price;
+                    $totalBuy  += $car->total_car_price;
                     $totalSale  += $car->sale_price;
                 }
                

@@ -6,7 +6,7 @@ use DataTables;
 use Illuminate\Http\Request;
 use Validator;
 
-class CustomerController extends Controller {
+class PersonalCarController extends Controller {
     /**
      * Create a new controller instance.
      *
@@ -23,7 +23,16 @@ class CustomerController extends Controller {
             $customer = Customer::orderBy('id', 'desc')->get();
             return $this->getDataTablesView($customer);
         }
-        return view('pages.customer.index');
+        return view('pages.personal.add.index');
+    }
+
+    public function carAddList() {
+        if (request()->ajax()) {
+            $i = 0;
+            $customer = Customer::orderBy('id', 'desc')->get();
+            return $this->getDataTablesView($customer);
+        }
+        return view('pages.personal.add.index');
     }
 
     /**

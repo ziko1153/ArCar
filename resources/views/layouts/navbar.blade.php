@@ -85,13 +85,13 @@
 
                 <div class="dropdown-menu">
         
-                   <a href="{{route('personal.car.create')}}" class="dropdown-item  {{ Request::routeIs('personal.car.create') ? 'active' : '' }}">
+                   <a href="{{route('personal.car')}}" class="dropdown-item  {{ Request::routeIs('personal.car') ? 'active' : '' }}">
                     <i class="icon-list mr-2"></i>
-                    Hire 
+                    Car Add List 
                   </a>
            
 
-                  <a href="{{route('personal.car.show')}}" class="dropdown-item {{ Request::routeIs('personal.car.show') ? 'active' : '' }}">
+                  <a href="{{route('personal.car.hire')}}" class="dropdown-item {{ Request::routeIs('personal.car.hire') ? 'active' : '' }}">
                     <i class="icon-stack mr-2"></i>
                     Hire List
                   </a>
