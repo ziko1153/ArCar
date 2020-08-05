@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Customer;
+use App\HiresPayment;
 use App\PersonalCarAdd;
 use App\PersonalCarHire;
 use Auth;
@@ -41,7 +42,7 @@ class PersonalCarHireController extends Controller {
 
     protected function getPersonalCarList() {
         $carList = array();
-        $cars = PersonalCarAdd::where('hire_status', '=', '0')->orderBy('id', 'desc')->get();
+        $cars = PersonalCarAdd::orderBy('id', 'desc')->get();
 
         foreach ($cars as $car) {
             $list['id'] = $car->id;
@@ -92,10 +93,10 @@ class PersonalCarHireController extends Controller {
         $db = DB::transaction(function () use ($hiresData, $request) {
             $hire_id = PersonalCarHire::create($hiresData)->id;
             PersonalCarAdd::where('id', $request->car)->update(array('hire_status' => '1'));
-            // SalesPayment::create([
+            // hiresPayment::create([
             //     'hire_id' => $hire_id,
             //     'payment' => $request->paymentAmount,
-            //     'created_at' => $request->saleDate,
+            //     'created_at' => $request->hireDate,
             // ]);
 
             return true;
@@ -118,7 +119,7 @@ class PersonalCarHireController extends Controller {
      */
     public function edit($id) {
         if (request()->ajax()) {
-            $data = PersonalCarAdd::findOrFail($id);
+            $data = PersonalCarHire::findOrFail($id);
             return response()->json(['result' => $data]);
         }
     }
@@ -132,20 +133,39 @@ class PersonalCarHireController extends Controller {
      */
     public function update(Request $request) {
 
-        $error = $this->validateCar($request);
+        $db = DB::transaction(function () use ($request) {
+            //// Firslty Reverse Hire Status = 0 ;
+            $carId = PersonalCarHire::findOrFail($request->hidden_id)->car_id;
+            $this->reverseHiresCarData($carId);
 
-        if ($error->fails()) {
-            return response()->json(['errors' => $error->errors()->all()]);
-        }
+            //// Secondly Check Validation For Edit Hires Data
+            $error = $this->validateHireData($request);
 
-        $form_data = array(
-            'car_name' => $request->car_name,
-            'reg_no' => $request->reg_no,
-        );
+            if ($error->fails()) {
+                DB::rollback();
+                return array('errors' => $error->errors()->all());
+            }
 
-        PersonalCarAdd::whereId($request->hidden_id)->update($form_data);
+            /// Thirdly Update Hirs table data
 
-        return response()->json(['success' => 'Car Data is successfully updated']);
+            $hiresData = array(
+                'user_id' => Auth::id(),
+                'customer_id' => $request->customer,
+                'car_id' => $request->car,
+                'hire_start_date' => $request->hire_start_date,
+                'hire_end_date' => $request->hire_end_date,
+                'hire_rate' => $request->hire_rate,
+
+            );
+
+            PersonalCarHire::whereId($request->hidden_id)->update($hiresData);
+            PersonalCarAdd::where('id', $request->car)->update(array('hire_status' => '1'));
+
+            return array('success' => 'Succesfully Updated Hire Car Data');
+
+        });
+
+        return response()->json($db);
 
     }
 
@@ -163,17 +183,81 @@ class PersonalCarHireController extends Controller {
         return response()->json(['error' => 'Sorry Bad Request Something Went Wrong']);
     }
 
+    public function getPaymentList(Request $request) {
+        $hire = PersonalCarHire::findOrfail($request->hireId);
+        $paymentsData = '<tr>';
+        $sl = 0;
+        foreach ($hire->paymentList as $payment) {
+            $paymentsData .= '<tr>
+                <td>' . ++$sl . '</td>
+                <td>' . date('d-M-Y', strtotime($payment->created_at)) . '</td>
+                <td>' . $this->euroMoneyFormat($payment->payment) . '</td>
+                <td>' . $payment->reference . '</td>
+                <td style="color:tomato;cursor:pointer" onClick="deletePayment(' . $payment->id . ')"><i class="icon-trash-alt mr-3 icon-2x"></i></td>
+
+                </tr>';
+        }
+
+        $paymentsData .= '</tr>';
+        return response()->json(['success' => true, 'data' => $paymentsData]);
+    }
+
+    public function paymentDestroy() {
+
+        $paymentId = request()->paymentId;
+        $payment = HiresPayment::findOrFail($paymentId);
+        $payment->delete();
+
+        return response()->json(['success' => true]);
+
+    }
+
+    public function addPayment(Request $request) {
+        $rules = array(
+            'payment' => 'numeric|min:0',
+            'reference' => 'nullable|min:3',
+            'payment_date' => 'required|date_format:Y-m-d',
+        );
+        $error = Validator::make($request->all(), $rules);
+
+        if ($error->fails()) {
+            return response()->json(['errors' => $error->errors()->all()]);
+        }
+
+        $payment = app(HiresPayment::class);
+        $payment->timestamps = false;
+        $payment->payment = $request->payment;
+        $payment->reference = $request->reference;
+        $payment->hire_id = $request->hire_id;
+        $payment->created_at = $request->payment_date;
+        $payment->updated_at = $request->payment_date;
+        $payment->save();
+
+        return response()->json(['success' => 'SuccessFully Added Payment']);
+    }
+
+    protected function reverseHiresCarData($carId) {
+
+        return PersonalCarAdd::where('id', '=', $carId)
+            ->update([
+                'hire_status' => 0,
+            ]);
+
+    }
+
     protected function validateHireData($request) {
         $rules = array(
             'customer' => 'required|exists:customers,id',
             'car' => 'required|exists:personal_car_adds,id,hire_status,0',
             'hire_start_date' => 'required|date_format:Y-m-d',
+            'hire_end_date' => 'nullable|date_format:Y-m-d',
             'hire_rate' => 'numeric|min:1',
         );
         $attr = array(
             'customer' => 'Customer Selection ',
             'car' => 'Personal Car Selection',
             'hire_start_date' => 'Hire Start Date',
+            'hire_end_date' => 'Hire End Date',
             'hire_rate' => 'Weekly Hire Rate',
         );
 
@@ -197,6 +281,7 @@ class PersonalCarHireController extends Controller {
         return DataTables::of($car)
             ->addIndexColumn()
             ->addColumn('action', function ($car) {
+                $endHireBtn = ($car->hire_status == 1) ? '     <a href="#"  class="dropdown-item endHire" id="' . $car->id . '"><i class="icon-x"></i>End Hire</a>' : "";
                 $button = '<div class="list-icons">
             <div class="dropdown">
                 <a href="#" class="list-icons-item" data-toggle="dropdown" aria-expanded="false">
@@ -204,6 +289,8 @@ class PersonalCarHireController extends Controller {
                 </a>
 
                 <div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(22px, 19px, 0px);">
+                ' . $endHireBtn . '
+                <a href="#"  class="dropdown-item addPayment" id="' . $car->id . '"><i class="icon-coin-pound"></i>Take Payment</a>
                     <a href="#" class="dropdown-item edit" id="' . $car->id . '"><i class="icon-pencil"></i>Edit</a>
                     <a href="#" class="dropdown-item delete" id="' . $car->id . '"><i class="icon-trash"></i>Delete</a>
                 </div>
@@ -215,7 +302,10 @@ class PersonalCarHireController extends Controller {
             ->editColumn('date', function ($car) {
 
                 $data = 'Hire Start Date : ' . date('F d,Y', strtotime($car->hire_start_date)) . '<br>';
-                $data .= 'Hire End Date : ' . date('F d,Y', strtotime($car->hire_end_date));
+                if ($car->hire_end_date) {
+
+                    $data .= 'Hire End Date : ' . date('F d,Y', strtotime($car->hire_end_date));
+                }
                 return $data;
             })
             ->editColumn('reg_no', function ($car) {

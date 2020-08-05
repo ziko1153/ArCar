@@ -82,7 +82,7 @@
 
     <div class="modal-body">
         <span id="form_result"></span>
-<form method="post" class="form-horizontal" id="paymentForm">
+      <form method="post" class="form-horizontal" id="paymentForm">
         
         @csrf
 
@@ -149,10 +149,11 @@
                 </div>
             </div>
         </div>
-    </div>
+
+    </form>
+ </div>
 
  
-</form>
 <div class="card">
     <div class="payment-header card-header alpha-success text-success-800 header-elements-inline justify-content-center">
         <h6 class="card-title "><b>Previous Payment Hisotry</b></h6>

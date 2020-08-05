@@ -68,6 +68,9 @@ Route::post('personal/car/hire/hire/store', 'PersonalCarHireController@store')->
 Route::post('personal/car/hire/update', 'PersonalCarHireController@update')->name('personal.car.hire.update');
 Route::get('/personal/car/hire/{id}/edit', 'PersonalCarHireController@edit');
 Route::post('/personal/car/hire/destroy', 'PersonalCarHireController@destroy')->name('personalCarDelete');
+Route::get('personal/car/hire/payment', 'PersonalCarHireController@getPaymentList');
+Route::post('personal/car/hire/payment/destroy', 'PersonalCarHireController@paymentDestroy');
+Route::post('personal/car/hire/payment', 'PersonalCarHireController@addPayment')->name('personal.car.hire.payment');
 
 //// Report Controller
 

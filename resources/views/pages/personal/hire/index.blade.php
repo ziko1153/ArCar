@@ -168,6 +168,7 @@
                   placeholder="Enter Hire Start Date" 
                   name="hire_start_date"
                   value=""
+                  autocomplete="off"
                   />
                 </div>
             </div>
@@ -185,6 +186,25 @@
                   placeholder="Enter Weekly Rate" 
                   name="hire_rate"
                   value=""
+                  autocomplete="off"
+                  />
+                </div>
+            </div>
+          
+        </div>
+
+        <div class="form-group row showDisplay">
+            <label class="col-form-label col-lg-2">Hire End Date</label>
+            <div class="col-lg-10">
+                <div class="form-group-feedback form-group-feedback-right">
+                <input
+                 type="text" 
+                 class="form-control" 
+                 id="hireEndDate"
+                  placeholder="Enter Hire End Date" 
+                  name="hire_end_date"
+                  value=""
+                  autocomplete="off"
                   />
                 </div>
             </div>
@@ -213,6 +233,123 @@
 
 
 @endsection
+
+
+{{-- Payment Modal Form --}}
+
+<div id="modalPaymentForm" class="modal fade" >
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <span id="payment_form_result"></span>
+              <form method="post" class="form-horizontal" id="paymentForm">
+                
+                @csrf
+        
+                <div class="form-group row">
+                    <label class="col-form-label col-lg-2">Amount:</label>
+                    <div class="col-lg-10">
+                        <div class="form-group-feedback form-group-feedback-right">
+                        <input
+                         type="number" 
+                         class="form-control" 
+                          placeholder="Enter Amount" 
+                          name="payment" 
+                          value=""
+                          step="0.01"
+                          min="0"
+                          
+                          />
+                        </div>
+                    </div>
+                  
+                </div>
+        
+                
+                <div class="form-group row">
+                    <label class="col-form-label col-lg-2">Reference:</label>
+                    <div class="col-lg-10">
+                        <div class="form-group-feedback form-group-feedback-right">
+                        <input
+                         type="text" 
+                         class="form-control" 
+                          placeholder="Enter Reference" 
+                          name="reference" 
+                          value=""
+        
+                          />
+                        </div>
+                    </div>
+                  
+                </div>
+        
+        
+                <div class="form-group row">
+                    
+                    <label  class="col-form-label col-lg-2">Payment Date:</label>
+                        <div class="col-lg-10 input-group">
+                         
+                            <span class="input-group-prepend">
+                                <span class="input-group-text"><i class="icon-calendar22"></i></span>
+                            </span>
+                        <input type="text" class="form-control daterange-single " value="" name="payment_date" autocomplete="off">
+                            <br>
+                          
+                      
+                            
+                        </div>
+                    
+                </div>
+        
+                <div class="form-group row mb-0">
+                    <div class="col-lg-10 ml-lg-auto">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <input type="hidden" name="hire_id" id="hire_id" />
+                            <button type="submit" class="btn bg-primary"> <i class="icon-coin-pound ml-2"></i> Take Payment</button>
+                        </div>
+                    </div>
+                </div>
+        
+            </form>
+           </div>
+
+           <div class="card">
+            <div class="payment-header card-header alpha-success text-success-800 header-elements-inline justify-content-center">
+                <h6 class="card-title "><b>Previous Payment Hisotry</b></h6>
+                
+            </div>
+            <div class="card-body">
+               
+                <div class="table-responsive table-scrollable">
+                    <table class="table">
+                        <thead>
+                            <th>Sl.</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Reference</th>
+                            <th>Delete</th>
+                        </thead>
+                        <tbody class="previousPaymentHistory">
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+        </div>
+          
+        </div>
+    </div>
+</div>
+
 
 @include('layouts.confirmModal');
 
@@ -402,12 +539,7 @@ $('.addHireBtn').click(function(){
         },
     });
 
-        const formMessageShow = (message,type='info') => {
-            (message==="")? display = 'd-none' : display = '';
-            $('#form_result').html(`<div class="${display} alert alert-${type} alert-rounded alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
-            <span class="font-weight-semibold">Message: </span>${message}</div>`);
-        }
+
 
 
     $('#sample_form').on('submit', function(event){
@@ -467,23 +599,24 @@ $('.addHireBtn').click(function(){
         /// Get Edit Form Modal 
 
         $(document).on('click','.edit',function(){
-            
+              resetHireForm();
               let  id = $(this).attr('id');
                 $('#form_result').html('');
                 $.ajax({
-                url :"/personal/car/add/"+id+"/edit",
+                url :"/personal/car/hire/"+id+"/edit",
                 dataType:"json",
                 success:function(data)
                 {
-                    $("input[name*='car_name']").val(data.result.car_name);
-                    $("input[name*='reg_no']").val(data.result.reg_no);
-                    $('#hidden_id').val(id);
+                    console.log(data);
+                    insertDataEditForm(data.result);
+                    $('#hidden_id').val(data.result.id);
                     $('.modal-title').text('Edit Record');
-                    $('#action_button').val('Edit Car Data');
+                    $('#action_button').val('Edit Hire Data');
                     $('#action').val('Edit');
                     $('#modalForm').modal('show');
                 },
                 error:function(jqXHR,textStatus) {
+                    console.log(jqXHR);
                     if(jqXHR.status=== 419 || jqXHR.status === 401) {
                             alert('Something Went Wrong !! We are going to reload this Page after 5 seconds');
                             setTimeout(()=>{
@@ -503,6 +636,17 @@ $('.addHireBtn').click(function(){
                 locale: {
                 format: 'YYYY-MM-DD'
             }
+        });
+
+        $('#hireEndDate').daterangepicker({
+            singleDatePicker: true,
+            autoUpdateInput:false,
+            locale: {
+                        format: 'YYYY-MM-DD'
+                    }
+        }, function(start) {
+            console.log('date',start);
+        $('#hireEndDate').val(start.format('YYYY-MM-DD'));
         });
 
         //// Delete Car List
@@ -566,6 +710,22 @@ $('.car-select-search').select2().on("change", function(e) {
     addCar(parseInt(obj[0].id))  // 0 or 1 on change
 });
 
+
+let insertDataEditForm = (data) => {
+  $('.customer-select-search').val(data.customer_id).trigger('change');
+  $('.car-select-search').val(data.car_id).trigger('change');
+  $('#hireStartDate').daterangepicker({ 
+                singleDatePicker: true,
+                startDate: data.hire_start_date,
+                locale: {
+                format: 'YYYY-MM-DD'
+            }
+        });
+
+    $('#hireEndDate').val(data.hire_end_date);
+    $('#hireRate').val(data.hire_rate);
+
+}
 let addCustomer = (id) => {
       
         let customer = customerList.find(customer => customer.id === id );
@@ -615,9 +775,154 @@ let resetHireForm = () => {
     $('.customerShow').hide();
     $('.carShow').hide();
     $('.carShowSelect').hide();
+    $('#sample_form')[0].reset();
+    $('#form_result').html('');
 
 
 }
+
+const formMessageShow = (message,type='info') => {
+            (message==="")? display = 'd-none' : display = '';
+            $('#payment_form_result').html(`<div class="${display} alert alert-${type} alert-rounded alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+            <span class="font-weight-semibold">Message: </span>${message}</div>`);
+        }
+ /// Add PAyment Form
+$(document).on('click', '.addPayment', function(){
+            $('.modal-title').html('Add/Delete Payment');
+            $('#modalPaymentForm').modal('toggle');
+            hireId  = $(this).attr('id');
+            $('#hire_id').val(hireId)
+            formMessageShow("");
+               getPaymentData(hireId);
+        });
+    //// Submit Form 
+    $('#paymentForm').on('submit', function(event){
+          event.preventDefault();
+
+         let request =   $.ajax({
+                            url: "{{route('personal.car.hire.payment')}}",
+                            method:"POST",
+                            data:$(this).serialize(),
+                            dataType:"json"
+                         });
+            
+         request.done(function( msg ) {
+            if(msg.errors){
+                let errorMsg = `<ul>`;
+                msg.errors.forEach( (error) =>{
+                    errorMsg += `<li>${error}</li>`;
+                });
+                errorMsg += `</ul>`;
+                formMessageShow(`Error: ${errorMsg}`,'danger');
+            }
+            else {
+                formMessageShow(`${msg.success}`,'success');
+                $('#paymentForm')[0].reset();
+                getPaymentData(hireId);
+                getCarDataTable.ajax.reload(null, false);
+
+            }
+         });
+        
+        request.fail(function( jqXHR, textStatus ) {
+            formMessageShow(`Internal Server ${textStatus} Failed Edit  ${jqXHR} `,'danger');
+            if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                            setTimeout(()=>{
+                                location.reload();
+                            },5000)
+                    }
+         });
+                        
+    });
+
+
+
+    let getPaymentData = (hireId) => {
+            $.ajax({
+            url: "/personal/car/hire/payment",
+            dataType: 'JSON',
+            data: {hireId,_token:CSRF_TOKEN},
+            beforeSend: function() {
+  
+        
+               $('.previousPaymentHistory').html('<h5>Fetching Data <i class="icon-spinner2 spinner"></i></h5>');
+               
+            },
+            success: function(response) {
+
+                if(response.success === true) {
+                    $('.previousPaymentHistory').html(response.data);
+                }
+            },
+            error: function(xhr, error) {
+                if (xhr.readyState == 0 && xhr.status != 200) {
+                    pAlertError('Oppss Offline','Please Check Your Internet Connection');
+                    setTimeout(()=>{
+                        $('#modalPaymentForm').modal('toggle');
+                    },2000);
+                    return;
+                }
+
+                setTimeout(()=>{
+                        $('#modalPaymentForm').modal('toggle');
+                    },5000);
+
+            $('.payment-header').html(`<h1 class="text-danger-800 ">Internal Server Error</h1>`);
+            }
+
+            });
+        } 
+
+   let deletePayment = (id) => {
+            $.ajax({
+            url: "/personal/car/hire/payment/destroy",
+            type:'POST',
+            dataType: 'JSON',
+            data: {paymentId:id,_token:CSRF_TOKEN},
+            beforeSend: function() {
+                $('.payment-header').html(`<h1 class="text-danger-800 ">Wait We are Deleteing...</h1>`);
+               
+            },
+            success: function(response) {
+
+                if(response.success === true) {
+                    $('.payment-header').html(`<h1 class="text-success-800 ">Deleted SuccessFully</h1>`);
+                    getCarDataTable.ajax.reload(null, false);
+                }
+                setTimeout(() => {
+                    $('.payment-header').html(`<h6 class="card-title "><b>Previous Payment Hisotry</b></h6>`);
+                },2000);
+            },
+            error: function(xhr, error) {
+                if (xhr.readyState == 0 && xhr.status != 200) {
+                    pAlertError('Oppss Offline','Please Check Your Internet Connection');
+                    setTimeout(()=>{
+                        $('#modalPaymentForm').modal('toggle');
+                    },2000);
+                    return;
+                }
+
+                setTimeout(()=>{
+                        $('#modalPaymentForm').modal('toggle');
+                    },5000);
+
+            $('.payment-header').html(`<h1 class="text-danger-800 ">Internal Server Error</h1>`);
+            },
+            complete:function() {
+                getPaymentData(hireId);
+            }
+
+            });
+
+        }
+
+
+
+
+
+
 
 </script>
 @endsection
