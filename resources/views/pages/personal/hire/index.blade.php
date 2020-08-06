@@ -310,7 +310,7 @@
                     <div class="col-lg-10 ml-lg-auto">
                         <div class="d-flex justify-content-between align-items-center">
                             <input type="hidden" name="hire_id" id="hire_id" />
-                            <button type="submit" class="btn bg-primary"> <i class="icon-coin-pound ml-2"></i> Take Payment</button>
+                            <button id="paymentBtn" type="submit" class="btn bg-primary"> <i class="icon-coin-pound ml-2"></i> Take Payment</button>
                         </div>
                     </div>
                 </div>
@@ -359,6 +359,22 @@
 @section('extra-script')
 <script type="text/javascript" defer>
 
+let  pAlertError = (title, text)  => {
+    new PNotify({
+        title: title,
+        text: text,
+        addclass: 'bg-danger border-danger'
+    });
+}
+
+let  pAlertSuccess = (title, text)  => {
+    new PNotify({
+        title: title,
+        text: text,
+        addclass: 'bg-success border-success'
+    });
+}
+
 $(".checkForDot").focusout(function() {
         let val = $(this).val();
         if (val == "." || val == "") {
@@ -393,7 +409,7 @@ $(".checkForDot").focusout(function() {
 
 $('#modalForm').attr('data-backdrop', 'static');
  let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
-
+ let  hireId = null;
  
 
  let selectedCustomerId = 0;
@@ -649,48 +665,6 @@ $('.addHireBtn').click(function(){
         $('#hireEndDate').val(start.format('YYYY-MM-DD'));
         });
 
-        //// Delete Car List
-
-        $(document).on('click', '.delete', function(){
-                CarId = $(this).attr('id');
-                $('#confirmModal').modal('show');
-                $('.modal-title').text('Delete Record');
-        });
-
-        $('#confirm_btn').click(function(){
-            
-            $.ajax({
-                    url: "{{route('personalCarDelete')}}",
-                    method:"POST",
-                    data: {id:CarId, _token: CSRF_TOKEN},
-                    dataType:'json',
-                    beforeSend:function(){
-                        $('#confirm_btn').prop('disabled', true);
-                        $('#confirm_btn').text('Deleting...');
-                    },
-                    success:function(data)
-                    {  
-                        $('#confirm_btn').prop('disabled', false);
-                        $('#confirmModal').modal('hide');
-                        $('#confirm_btn').text('Delete');
-                        getCarDataTable.ajax.reload(null, false);
-                    },
-                    error:function(jqXHR, textStatus) { 
-                        $('#confirm_btn').prop('disabled', false);
-                        $('#confirm_btn').text('Delete');
-                        //alert('Internal Server Error');
-                        console.log(jqXHR,textStatus);
-                        if(jqXHR.status=== 419 || jqXHR.status === 401) {
-                            alert('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
-                            setTimeout(()=>{
-                                location.reload();
-                            },5000)
-                    }
-                    }
-            });
-        });
-
-
 
 
 $('.customer-select-search').select2();
@@ -792,14 +766,15 @@ $(document).on('click', '.addPayment', function(){
             $('.modal-title').html('Add/Delete Payment');
             $('#modalPaymentForm').modal('toggle');
             hireId  = $(this).attr('id');
+            $('#paymentBtn').prop('disabled',false);
             $('#hire_id').val(hireId)
             formMessageShow("");
                getPaymentData(hireId);
-        });
+});
     //// Submit Form 
     $('#paymentForm').on('submit', function(event){
           event.preventDefault();
-
+        $('#paymentBtn').prop('disabled',true);
          let request =   $.ajax({
                             url: "{{route('personal.car.hire.payment')}}",
                             method:"POST",
@@ -815,12 +790,14 @@ $(document).on('click', '.addPayment', function(){
                 });
                 errorMsg += `</ul>`;
                 formMessageShow(`Error: ${errorMsg}`,'danger');
+                $('#paymentBtn').prop('disabled',false);
             }
             else {
                 formMessageShow(`${msg.success}`,'success');
                 $('#paymentForm')[0].reset();
                 getPaymentData(hireId);
                 getCarDataTable.ajax.reload(null, false);
+                $('#paymentBtn').prop('disabled',false);
 
             }
          });
@@ -833,6 +810,7 @@ $(document).on('click', '.addPayment', function(){
                                 location.reload();
                             },5000)
                     }
+                    $('#paymentBtn').prop('disabled',false);
          });
                         
     });
@@ -873,9 +851,11 @@ $(document).on('click', '.addPayment', function(){
             }
 
             });
-        } 
+    } 
 
-   let deletePayment = (id) => {
+    let deletePayment = (id) => {
+
+        
             $.ajax({
             url: "/personal/car/hire/payment/destroy",
             type:'POST',
@@ -916,7 +896,84 @@ $(document).on('click', '.addPayment', function(){
 
             });
 
-        }
+    }
+
+
+    $(document).on('click', '.delete', function(){
+                hireId = $(this).attr('id');
+                $('#confirmModal').modal('show');
+                
+    });
+    
+
+    $('#confirm_btn').click(function(){
+                
+            $.ajax({
+                        url: "{{route('personalCarDelete')}}",
+                        method:"POST",
+                        data: {id:hireId, _token: CSRF_TOKEN},
+                        dataType:'json',
+                        beforeSend:function(){
+                            $('#confirm_btn').prop('disabled', true);
+                            $('#confirm_btn').text('Deleting...');
+                        },
+                        success:function(data)
+                        {  
+                            $('#confirm_btn').prop('disabled', false);
+                            $('#confirmModal').modal('hide');
+                            $('#confirm_btn').text('Delete');
+                            getCarDataTable.ajax.reload(null, false);
+                        },
+                        error:function(jqXHR, textStatus) { 
+                            $('#confirm_btn').prop('disabled', false);
+                            $('#confirm_btn').text('Delete');
+                            pAlertError('Internal Server Error');
+                            console.log(jqXHR,textStatus);
+                            if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                                pAlertError('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                                setTimeout(()=>{
+                                    location.reload();
+                                },5000)
+                        }
+                        }
+            });
+    });
+
+    $(document).on('click', '.endHire', function(){
+                hireId = $(this).attr('id');
+                $.ajax({
+                        url: "{{route('personalCarHireEnd')}}",
+                        method:"POST",
+                        data: {id:hireId, _token: CSRF_TOKEN},
+                        dataType:'json',
+                        beforeSend:function(){
+                           pAlertError("Ending","Please Wait For Processing");
+                        },
+                        success:function(data)
+                        {   PNotify.removeAll();
+                            if(data.success){
+                   
+                             pAlertSuccess("Success","Hire End");
+                              getCarDataTable.ajax.reload(null, false);
+                            }else {
+                                pAlertError('Error',data.error);
+                            }
+         
+
+                        },
+                        error:function(jqXHR, textStatus) { 
+                            pAlertError('Internal Server Error');
+                            console.log(jqXHR,textStatus);
+                            if(jqXHR.status=== 419 || jqXHR.status === 401) {
+                                pAlertError('Something Went Wrong !! We are going to Reload this Page after 5 seconds');
+                                setTimeout(()=>{
+                                    location.reload();
+                                },5000)
+                        }
+                        }
+            });
+                
+    });
 
 
 

@@ -71,6 +71,7 @@ Route::post('/personal/car/hire/destroy', 'PersonalCarHireController@destroy')->
 Route::get('personal/car/hire/payment', 'PersonalCarHireController@getPaymentList');
 Route::post('personal/car/hire/payment/destroy', 'PersonalCarHireController@paymentDestroy');
 Route::post('personal/car/hire/payment', 'PersonalCarHireController@addPayment')->name('personal.car.hire.payment');
+Route::post('/personal/car/hire/end', 'PersonalCarHireController@hireEnd')->name('personalCarHireEnd');
 
 //// Report Controller
 

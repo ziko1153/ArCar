@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('extra-header')
+ <script src="/global_assets/js/plugins/notifications/pnotify.min.js"></script>
    <!-- For Data Table -->
    <script src="/global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
    <script src="/global_assets/js/plugins/tables/datatables/extensions/jszip/jszip.min.js"></script>
@@ -192,6 +193,15 @@
 
 @section('extra-script')
 <script type="text/javascript" defer>
+
+let  pAlertError = (title, text)  => {
+    new PNotify({
+        title: title,
+        text: text,
+        addclass: 'bg-danger border-danger'
+    });
+}
+
  let CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
  let  saleId = 0;
     // Setting datatable defaults

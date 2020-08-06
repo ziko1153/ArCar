@@ -176,11 +176,53 @@ class PersonalCarHireController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function destroy() {
-        $data = PersonalCarAdd::findOrFail(request()->id);
-        if ($data->delete()) {
+
+        $result = DB::transaction(function () {
+            $hireData = PersonalCarHire::findOrFail(request()->id);
+            $this->reverseHiresCarData($hireData->car_id);
+            HiresPayment::where('hire_id', $hireData->id)->delete();
+            $hireData->delete();
+            return true;
+
+        });
+
+        if ($result) {
             return response()->json(['success' => 'Deleted Successfully']);
+        } else {
+            return response()->json(['error' => 'Sorry Bad Request Something Went Wrong']);
         }
-        return response()->json(['error' => 'Sorry Bad Request Something Went Wrong']);
+
+    }
+
+    public function hireEnd() {
+        $msg = "";
+        $result = DB::transaction(function () {
+            $hireData = PersonalCarHire::findOrFail(request()->id);
+            if ($hireData->hire_status == 2) {
+                $msg = 'Already Hire End';
+                return $msg;
+            }
+            if ($hireData->hire_end_date == null || $hireData->hire_end_date == '') {
+                $msg = 'Hire End Date Select First';
+                return $msg;
+
+            }
+            $this->reverseHiresCarData($hireData->car_id);
+
+            $hireData->update([
+                'hire_status' => 2,
+            ]);
+
+            return true;
+
+        });
+
+        if ($result === true) {
+            return response()->json(['success' => 'Hire End Successfully']);
+        } else {
+            return response()->json(['error' => $result]);
+        }
+
     }
 
     public function getPaymentList(Request $request) {
@@ -281,7 +323,7 @@ class PersonalCarHireController extends Controller {
         return DataTables::of($car)
             ->addIndexColumn()
             ->addColumn('action', function ($car) {
-                $endHireBtn = ($car->hire_status == 1) ? '     <a href="#"  class="dropdown-item endHire" id="' . $car->id . '"><i class="icon-x"></i>End Hire</a>' : "";
+                $endHireBtn = '<a href="#"  class="dropdown-item endHire" id="' . $car->id . '"><i class="icon-x"></i>End Hire</a>';
                 $button = '<div class="list-icons">
             <div class="dropdown">
                 <a href="#" class="list-icons-item" data-toggle="dropdown" aria-expanded="false">
