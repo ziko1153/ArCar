@@ -203,7 +203,7 @@ class PersonalCarHireController extends Controller {
                 return $msg;
             }
             if ($hireData->hire_end_date == null || $hireData->hire_end_date == '') {
-                $msg = 'Hire End Date Select First';
+                $msg = ' Go to Edit  & Hire End Date Select First!!';
                 return $msg;
 
             }
@@ -364,6 +364,7 @@ class PersonalCarHireController extends Controller {
                 return $this->euroMoneyFormat($car->hire_rate);
             })
 
+
             ->editColumn('weeks', function ($car) {
                 $result = $this->calculateTotalWeeks($car->hire_start_date, $car->hire_end_date, $car->hire_rate);
                 $car->totalPayable = $result['total_rate'];
@@ -401,7 +402,12 @@ class PersonalCarHireController extends Controller {
                 }
             })
 
-            ->rawColumns(['action', 'date', 'reg_no', 'weeks', 'payment', 'due'])
+            ->editColumn('hire_status',function($car){
+
+                return ($car->hire_status == 1) ? '<span class="badge badge-flat badge-pill border-success text-success-600">Running</span>' : '<span class="badge badge-dark badge-pill">Closed Hire</span>';
+             })
+
+            ->rawColumns(['action', 'date', 'reg_no', 'weeks', 'payment', 'due','hire_status'])
             ->make(true);
     }
 

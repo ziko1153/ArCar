@@ -13,6 +13,16 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
+Route::get('/clear', function() {
+    $exitCode = Artisan::call('config:clear');
+    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('config:cache');
+    $exitCode = Artisan::call('view:cache');
+    $exitCode = Artisan::call('config:cache');
+    return 'DONE'; //Return anything
+});
+
+
 Route::get('/', function () {
 
     return redirect('/report');

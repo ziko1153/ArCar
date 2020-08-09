@@ -57,6 +57,7 @@
             <th>Weeks</th>
             <th>Payment</th>
             <th>Due</th>
+            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -494,6 +495,7 @@ $('.addHireBtn').click(function(){
                 {data: 'weeks'},
                 {data: 'payment'},
                 {data: 'due'},
+                {data: 'hire_status'},
                 {data: 'action'}
 
             ], 
@@ -648,6 +650,7 @@ $('.addHireBtn').click(function(){
        ///// Date Range Select
         $('.daterange-single').daterangepicker({ 
                 singleDatePicker: true,
+                drops:"up",
                 startDate: moment(),
                 locale: {
                 format: 'YYYY-MM-DD'
@@ -656,6 +659,7 @@ $('.addHireBtn').click(function(){
 
         $('#hireEndDate').daterangepicker({
             singleDatePicker: true,
+            drops:"up",
             autoUpdateInput:false,
             locale: {
                         format: 'YYYY-MM-DD'
